@@ -28,7 +28,7 @@ def main():
                         editor.save_note(editor.current_note)
                         
                     elif shortcut == 'goto note':
-                        result = editor.dialog('Enter the name of the note to load (^C to cancel)')
+                        result = editor.dialog('Enter the name of the note to load (^C to cancel):')
                         if result:
                             editor.load_note(result)
                             
@@ -138,13 +138,13 @@ def main():
                     if cy < len(buffer):
                         editor.correct_cursor(cy, len(editor.buffer[cy]))
                 # TODO: c<255? not all of those are good characters
-                elif c < 255:
+                elif 0 < c < 255:
                     editor.altered = True
                     if cy > len(editor.buffer)-1: editor.buffer += ['']
                     editor.buffer[cy] = editor.buffer[cy][:cx] + chr(c) + editor.buffer[cy][cx:]
                     editor.correct_cursor(cy, cx+1)
                     
-                editor.status = str(c)
+                #editor.status = str(c)
 
         except KeyboardInterrupt:
             running = False

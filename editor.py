@@ -90,7 +90,7 @@ class Editor:
         self.screen.refresh()
 
         
-    def dialog(self, prompt, default_text):
+    def dialog(self, prompt, default_text='', yesno=False):
         running = True
         entered_text = default_text
         
@@ -98,20 +98,27 @@ class Editor:
             try:
                 self.draw_screen()
                 
-                total_gap = self.width - len(prompt) - 4 - len(entered_text)
-                self.shortcut_win.addstr(0, 0, ' %s: %s%s' % (prompt, entered_text, ' '*total_gap), curses.A_REVERSE)
+                total_gap = self.width - len(prompt) - 3 - len(entered_text)
+                self.shortcut_win.addstr(0, 0, ' %s %s%s' % (prompt, entered_text, ' '*total_gap), curses.A_REVERSE)
                 self.screen.move(self.height-3, len(prompt) + 3 + len(entered_text))
                 self.shortcut_win.refresh()
                 
                 c = self.screen.getch()
                 
-                if c == curses.KEY_BACKSPACE:
-                    entered_text = entered_text[:-1]
-                elif c == ord('\n'):
-                    return entered_text
-                elif 0 < c < 255:
-                    if len(entered_text) < 100:
-                        entered_text += chr(c)
+                if yesno:
+                    if c in (ord('y'), ord('Y')):
+                        return True
+                    elif c in (ord('n'), ord('N')):
+                        return False
+                    
+                else:
+                    if c == curses.KEY_BACKSPACE:
+                        entered_text = entered_text[:-1]
+                    elif c == ord('\n'):
+                        return entered_text
+                    elif 0 < c < 255:
+                        if len(entered_text) < 100:
+                            entered_text += chr(c)
                 
             except KeyboardInterrupt:
                 return None
@@ -136,8 +143,13 @@ class Editor:
         self.cursor = (cy, cx)
         
     def load_note(self, note_name, going_back = False):
+        if self.altered:
+            response = self.dialog('Save changes to old note? (Y or N, ^C to cancel)', yesno=True)
+            if response is None: return
+            elif response:
+                self.save_note(self.current_note)
         try:
-            if note_name is None:
+            if not note_name:
                 self.status = 'New note'
                 self.buffer = []
             else:
@@ -145,7 +157,7 @@ class Editor:
                 with open(note_path) as note_file:
                     self.buffer = [r.rstrip('\n') for r in note_file.readlines()]    
                 self.status = 'Loaded note %s from %s' % (note_name, note_path)
-            if not going_back:
+            if not going_back and not (self.history_position == len(self.history)-1 and self.history[-1] == note_name):
                 self.history = self.history[:self.history_position+1] + [note_name]
                 self.history_position = len(self.history) - 1
         except: 
@@ -153,9 +165,10 @@ class Editor:
             self.status = "Couldn't find note %s" % note_name
         self.current_note = note_name
         self.cursor = (0,0)
+        self.altered = False
         
     def save_note(self, note_name):
-        note_name = self.dialog('Enter the name of the note to save', note_name)
+        note_name = self.dialog('Enter the name of the note to save:', note_name)
         note_path = settings.find_note(note_name)
         if not note_path: note_path = settings.default_note_path(note_name)
         directory = '/'.join(note_path.split('/')[:-1])

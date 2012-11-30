@@ -26,7 +26,8 @@ config_file_path = os.path.join(home_dir, 'settings')
 
 defaults = {
             'path': os.path.join(home_dir, 'notes'),
-            'default_note': '',
+            'default_note': sys.argv[1] if len(sys.argv) > 1 else '',
+            'tab_width': '4',
 }
 
 config = ConfigParser.SafeConfigParser(defaults)
@@ -35,11 +36,13 @@ config.read(config_file_path)
 # get note search paths
 # TODO: parse sys.argv arguments
 args = {}
-for arg in ('path', 'default_note'):
+for arg in ('path', 'default_note', 'tab_width'):
     if config.has_section('nanote'):
         args[arg] = config.get('nanote', arg)
     else:
         args[arg] = config.defaults()[arg]
+        
+args['tab_width'] = int(args['tab_width'])
 
 NOTE_SEARCH_PATHS = '.:' + args['path']
 
