@@ -15,6 +15,8 @@ class Editor:
         self.history = [None]
         self.history_position = 0
         self.links = []
+        self.cutting = False
+        self.cuts = []
         
         self.load_note(start_note)
         

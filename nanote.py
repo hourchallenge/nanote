@@ -44,12 +44,27 @@ def main():
                     elif shortcut == 'settings':
                         editor.load_note('**settings**')
                         
+                    elif shortcut == 'paste':
+                        if editor.cuts:
+                            editor.buffer = editor.buffer[:cy] + editor.cuts + editor.buffer[cy:]
+                            editor.correct_cursor(cy+len(editor.cuts), cx)
+                    
+                    elif shortcut == 'cut':
+                        if editor.cutting:
+                            editor.cuts += editor.buffer[cy]
+                        else:
+                            editor.cuts = [editor.buffer[cy]]
+                            
+                        editor.buffer = editor.buffer[:cy] + editor.buffer[cy+1:]
+                        
                     handled_key = True
             if not handled_key:
                 if c == curses.KEY_UP:
                     editor.correct_cursor(cy-1, min(cx, len(editor.buffer[cy-1]) if 0 <= cy-1 < len(editor.buffer) else 0))
+                    editor.cutting = False
                 elif c == curses.KEY_DOWN:
                     editor.correct_cursor(cy+1, cx)
+                    editor.cutting = False
                 elif c == curses.KEY_LEFT:
                     editor.correct_cursor(cy, cx-1)
                 elif c == curses.KEY_RIGHT:
