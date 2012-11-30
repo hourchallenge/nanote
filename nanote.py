@@ -4,6 +4,8 @@ import settings
 from editor import Editor
 
 
+nonwords = ' .,;-_'
+
 def main():
     running = True
 
@@ -72,14 +74,16 @@ def main():
                 elif c == curses.KEY_LEFT + 279:
                     # ctrl left
                     first = True
-                    while first or not (cx==0 or (cy < len(editor.buffer) and len(editor.buffer[cy])>0 and editor.buffer[cy][cx-1] == ' ')):
+                    while first or not (cx==0 or (cy < len(editor.buffer) and len(editor.buffer[cy])>0 and editor.buffer[cy][cx-1] in nonwords 
+                        and (cx >= len(editor.buffer[cy]) or not editor.buffer[cy][cx] in nonwords))):
                         first = False
                         editor.correct_cursor(cy, cx-1)
                         cy, cx = editor.cursor
                 elif c == curses.KEY_RIGHT + 293:
                     # ctrl right
                     first = True
-                    while first or not (cx==0 or (cy < len(editor.buffer) and len(editor.buffer[cy])>0 and editor.buffer[cy][cx-1] == ' ')):
+                    while first or not (cx==0 or (cy < len(editor.buffer) and len(editor.buffer[cy])>0 and editor.buffer[cy][cx-1] in nonwords 
+                        and (cx >= len(editor.buffer[cy]) or not editor.buffer[cy][cx] in nonwords))):
                         first = False
                         editor.correct_cursor(cy, cx+1)
                         cy, cx = editor.cursor
@@ -135,7 +139,7 @@ def main():
                     else:
                         editor.correct_cursor(cy, 0)
                 elif c == curses.KEY_END:
-                    if cy < len(buffer):
+                    if cy < len(editor.buffer):
                         editor.correct_cursor(cy, len(editor.buffer[cy]))
                 # TODO: c<255? not all of those are good characters
                 elif 0 < c < 255:
