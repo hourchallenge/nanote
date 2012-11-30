@@ -38,39 +38,40 @@ class Editor:
         
     def draw_screen(self):
         screen_size = self.screen.getmaxyx()
-        height, width = screen_size
+        self.height, self.width = screen_size
+        height, width = self.height, self.width
         cy, cx = self.cursor
 
-        buffer_pad = curses.newpad(height, width)
-        title_win = curses.newwin(1, width, 0, 0)
-        shortcut_win = curses.newwin(3, width, height-3, 0)
+        self.buffer_pad = curses.newpad(height, width)
+        self.title_win = curses.newwin(1, width, 0, 0)
+        self.shortcut_win = curses.newwin(3, width, height-3, 0)
 
         columns = int((len(settings.shortcuts)+.5)/2)
         column_width = width / (columns + 1)
         for n, shortcut in enumerate(settings.shortcuts):
             x = (n/2) * column_width
             y = 1 if not n%2 else 2
-            shortcut_win.addstr(y, x, '^' + shortcut[0], curses.A_REVERSE)
-            shortcut_win.addstr(' ' + shortcut[1])
+            self.shortcut_win.addstr(y, x, '^' + shortcut[0], curses.A_REVERSE)
+            self.shortcut_win.addstr(' ' + shortcut[1])
         
         if self.status:
             total_gap = width - len(self.status) - 1
             left_gap = total_gap/2
             right_gap = total_gap-left_gap
-            shortcut_win.addstr(0, 0, ' '*(left_gap) + self.status + ' '*(right_gap), curses.A_REVERSE)
+            self.shortcut_win.addstr(0, 0, ' '*(left_gap) + self.status + ' '*(right_gap), curses.A_REVERSE)
             self.status = ''
             
-        shortcut_win.refresh()
+        self.shortcut_win.refresh()
 
         note_name = self.current_note if self.current_note else 'untitled'
         title_text = 'nanote' + str(note_name)
         total_gap = width - len(title_text) - 1
         left_gap = total_gap/2
         right_gap = total_gap-left_gap
-        title_win.addstr('nanote' + ' '*left_gap + str(note_name) + ' '*right_gap, curses.A_REVERSE)
-        title_win.refresh()
+        self.title_win.addstr('nanote' + ' '*left_gap + str(note_name) + ' '*right_gap, curses.A_REVERSE)
+        self.title_win.refresh()
 
-        buffer_pad.addstr('\n'.join(self.buffer))
+        self.buffer_pad.addstr('\n'.join(self.buffer))
         check_for_links_range = range(self.pad_position[0], min(self.pad_position[0] + height-3, self.pad_position[0] + len(self.buffer) - 1))
         self.links = []
         for n, i in enumerate(check_for_links_range):
@@ -78,16 +79,39 @@ class Editor:
             for m in p.finditer(self.buffer[i]):
                 pos = m.start()
                 text = m.group()
-                buffer_pad.addstr(n, pos, text, curses.A_REVERSE)
+                self.buffer_pad.addstr(n, pos, text, curses.A_REVERSE)
                 if i == cy: self.links.append((pos, text))
-        buffer_pad.refresh(self.pad_position[0], self.pad_position[1], 1, 0, height-4, width)
+        self.buffer_pad.refresh(self.pad_position[0], self.pad_position[1], 1, 0, height-4, width)
 
         self.screen.move(cy+1, cx)
         self.screen.refresh()
 
         
-    def dialog(self):
-        pass
+    def dialog(self, prompt, default_text):
+        running = True
+        entered_text = default_text
+        
+        while running:
+            try:
+                self.draw_screen()
+                
+                total_gap = self.width - len(prompt) - 4 - len(entered_text)
+                self.shortcut_win.addstr(0, 0, ' %s: %s%s' % (prompt, entered_text, ' '*total_gap), curses.A_REVERSE)
+                self.screen.move(self.height-3, len(prompt) + 3 + len(entered_text))
+                self.shortcut_win.refresh()
+                
+                c = self.screen.getch()
+                
+                if c == curses.KEY_BACKSPACE:
+                    entered_text = entered_text[:-1]
+                elif c == ord('\n'):
+                    return entered_text
+                elif 0 < c < 255:
+                    if len(entered_text) < 100:
+                        entered_text += chr(c)
+                
+            except KeyboardInterrupt:
+                return None
 
     
     def correct_cursor(self, cy, cx):
@@ -128,6 +152,7 @@ class Editor:
         self.cursor = (0,0)
         
     def save_note(self, note_name):
+        note_name = self.dialog('Enter the name of the note to save', note_name)
         note_path = settings.find_note(note_name)
         if not note_path: note_path = settings.default_note_path(note_name)
         directory = '/'.join(note_path.split('/')[:-1])

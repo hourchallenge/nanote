@@ -28,7 +28,7 @@ def main():
                         editor.save_note(editor.current_note)
                         
                     elif shortcut == 'goto note':
-                        result = editor.dialog('Enter the name of the note to load (^C to cancel):')
+                        result = editor.dialog('Enter the name of the note to load (^C to cancel)')
                         if result:
                             editor.load_note(result)
                             
