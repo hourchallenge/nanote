@@ -1,5 +1,5 @@
 import curses
-import time
+import re
 import settings
 
 
@@ -59,7 +59,7 @@ def main():
             buffer = note_file.readlines()
     else: 
         current_note = None
-        buffer = ['test', 'line 2', 'line 3', '', 'line 5']
+        buffer = ['test[abc]', 'line 2', 'line 3', '', 'line 5']
 
     end_state = None
 
@@ -84,10 +84,21 @@ def main():
                 
             shortcut_win.refresh()
 
-            title_win.addstr('nanote', curses.A_REVERSE)
+            title_text = 'nanote' + str(current_note)
+            gap = (width-1-len(title_text))/2
+            title_win.addstr('nanote' + ' '*gap + str(current_note) + ' '*gap, curses.A_REVERSE)
             title_win.refresh()
 
             buffer_pad.addstr('\n'.join(buffer))
+            check_for_links_range = range(pad_position[0], min(pad_position[0] + height-3, pad_position[0] + len(buffer) - 1))
+            links = []
+            for n, i in enumerate(check_for_links_range):
+                p = re.compile("\[[a-zA-Z\_\-\.]+\]")
+                for m in p.finditer(buffer[i]):
+                    pos = m.start()
+                    text = m.group()
+                    buffer_pad.addstr(n, pos, text, curses.A_REVERSE)
+                    if i == cy: links.append((pos, text))
             buffer_pad.refresh(pad_position[0], pad_position[1], 1, 0, height-4, width)
 
             screen.refresh()
@@ -103,7 +114,7 @@ def main():
                         save_note(current_note, '\n'.join(buffer))
             if not handled_key:
                 if c == curses.KEY_UP:
-                    cursor = correct_cursor(cy-1, cx, buffer)
+                    cursor = correct_cursor(cy-1, min(cx, len(buffer[cy-1]) if 0 <= cy-1 < len(buffer) else 0), buffer)
                 elif c == curses.KEY_DOWN:
                     cursor = correct_cursor(cy+1, cx, buffer)
                 elif c == curses.KEY_LEFT:
