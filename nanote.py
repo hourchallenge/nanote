@@ -114,8 +114,9 @@ def main():
                         else:
                             editor.buffer = editor.buffer[:cy] + editor.buffer[cy+1:]
                 elif c == curses.KEY_HOME:
-                    if cx == 0:
-                        # TODO: smart home (go to first non-space character)
+                    if cx == 0 and cy < len(editor.buffer) and editor.buffer[cy]:
+                        stripped = editor.buffer[cy].lstrip(' ')
+                        cx = len(editor.buffer[cy]) - len(stripped)
                         editor.correct_cursor(cy, cx)
                     else:
                         editor.correct_cursor(cy, 0)
