@@ -69,6 +69,20 @@ def main():
                     editor.correct_cursor(cy, cx-1)
                 elif c == curses.KEY_RIGHT:
                     editor.correct_cursor(cy, cx+1)
+                elif c == curses.KEY_LEFT + 279:
+                    # ctrl left
+                    first = True
+                    while first or not (cx==0 or (cy < len(editor.buffer) and len(editor.buffer[cy])>0 and editor.buffer[cy][cx-1] == ' ')):
+                        first = False
+                        editor.correct_cursor(cy, cx-1)
+                        cy, cx = editor.cursor
+                elif c == curses.KEY_RIGHT + 293:
+                    # ctrl right
+                    first = True
+                    while first or not (cx==0 or (cy < len(editor.buffer) and len(editor.buffer[cy])>0 and editor.buffer[cy][cx-1] == ' ')):
+                        first = False
+                        editor.correct_cursor(cy, cx+1)
+                        cy, cx = editor.cursor
                 elif c == ord('\n'):
                     follow_link = False
                     for pos, text in editor.links:
@@ -78,13 +92,17 @@ def main():
                             editor.load_note(current_note)
                     if not follow_link:
                         editor.altered = True
-                        editor.buffer = editor.buffer[:cy] + [editor.buffer[cy][:cx]] + [editor.buffer[cy][cx:]] + editor.buffer[cy+1:]
+                        if cy == len(editor.buffer):
+                            editor.buffer.append('')
+                        else:
+                            editor.buffer = editor.buffer[:cy] + [editor.buffer[cy][:cx]] + [editor.buffer[cy][cx:]] + editor.buffer[cy+1:]
                         editor.correct_cursor(cy+1, 0)
                 elif c == curses.KEY_BACKSPACE:
                     editor.altered = True
                     if cy < len(editor.buffer[cy]):
                         if cx > 0:
                             editor.buffer[cy] = editor.buffer[cy][:cx-1] + editor.buffer[cy][cx:]
+                            editor.status = 'backspace'
                         else:
                             editor.buffer = editor.buffer[:cy-1] + [editor.buffer[cy-1] + editor.buffer[cy]] + editor.buffer[cy+1:]
                     editor.correct_cursor(cy, cx-1)
@@ -110,6 +128,8 @@ def main():
                     if cy > len(editor.buffer)-1: editor.buffer += ['']
                     editor.buffer[cy] = editor.buffer[cy][:cx] + chr(c) + editor.buffer[cy][cx:]
                     editor.correct_cursor(cy, cx+1)
+                    
+                #editor.status = str(c)
 
         except KeyboardInterrupt:
             running = False

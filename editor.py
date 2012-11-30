@@ -4,10 +4,9 @@ import re
 
 
 class Editor:
-    def __init__(self, start_note):
+    def __init__(self, start_note=None):
         self.start_app()
         
-        start_note = 'school:homework'
         self.cursor = (0,0)
         self.pad_position = (0,0)
         self.status = ''
@@ -20,7 +19,7 @@ class Editor:
         
         self.load_note(start_note)
         
-        if start_note is None:
+        if not start_note:
             self.buffer = ['This is a test note.', '', 'You can link to other notes like this: [school:homework].', 'Put the cursor over a link and press ENTER to follow it.']
 
 
