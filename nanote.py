@@ -106,6 +106,20 @@ def main():
                         else:
                             editor.buffer = editor.buffer[:cy-1] + [editor.buffer[cy-1] + editor.buffer[cy]] + editor.buffer[cy+1:]
                     editor.correct_cursor(cy, cx-1)
+                elif c == ord('\t'):
+                    # tab
+                    tab = ' '*settings.args['tab_width']
+                    if cy == len(editor.buffer): 
+                        editor.buffer.append(tab)
+                    else:
+                        editor.buffer[cy] = tab + editor.buffer[cy]
+                    editor.correct_cursor(cy, cx+len(tab))
+                elif c == 353:
+                    # shift+tab
+                    tab = ' '*settings.args['tab_width']
+                    if cy < len(editor.buffer) and editor.buffer[cy].startswith(tab):
+                        editor.buffer[cy] = editor.buffer[cy][len(tab):]
+                    editor.correct_cursor(cy, cx-len(tab))
                 elif c == curses.KEY_DC:
                     editor.altered = True
                     if cy < len(editor.buffer[cy]):
@@ -130,7 +144,7 @@ def main():
                     editor.buffer[cy] = editor.buffer[cy][:cx] + chr(c) + editor.buffer[cy][cx:]
                     editor.correct_cursor(cy, cx+1)
                     
-                #editor.status = str(c)
+                editor.status = str(c)
 
         except KeyboardInterrupt:
             running = False
