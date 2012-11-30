@@ -31,18 +31,20 @@ def end_app(screen):
     curses.endwin()
 
 def correct_cursor(cy, cx, buffer):
-    if cy < 0: cy = 0
+    if cy < 0: 
+        # up too far; move to top
+        cy = 0; cx = 0
     if cy >= len(buffer): 
+        # down too far; move to bottom
         cy = len(buffer)
-        cx = 0
-    if cx < 0: 
-        cy -= 1
-        cx = len(buffer[cy])
-        return correct_cursor(cy, cx, buffer)
+    if cx < 0:
+        # left too far; move up and to the end of the previous line
+        return correct_cursor(cy-1, len(buffer[cy-1]), buffer)
     if (cy < len(buffer)) and (cx > len(buffer[cy])): 
-        cy += 1
-        cx = 0
-        return correct_cursor(cy, cx, buffer)
+        # right too far; move down and to the beginning of the next line
+        return correct_cursor(cy+1, 0, buffer)
+    if (cy >= len(buffer)) and cx > 0:
+        cy = len(buffer); cx = 0
     return (cy, cx)
     
 def load_note(note_name):
