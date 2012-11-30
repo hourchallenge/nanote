@@ -105,7 +105,7 @@ class Editor:
                 
                 total_gap = self.width - len(prompt) - 3 - len(entered_text)
                 self.shortcut_win.addstr(0, 0, ' %s %s%s' % (prompt, entered_text, ' '*total_gap), curses.A_REVERSE)
-                self.screen.move(self.height-3, len(prompt) + 3 + len(entered_text))
+                self.screen.move(self.height-3, len(prompt) + 2 + len(entered_text))
                 self.shortcut_win.refresh()
                 
                 c = self.screen.getch()
