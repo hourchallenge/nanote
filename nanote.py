@@ -13,7 +13,7 @@ shortcuts = [
              ('U', 'paste'),
              ('B', 'back'),
              ('F', 'forward'),
-             ('S', 'settings'),
+             ('T', 'settings'),
              ]
 
 def start_app():
@@ -58,7 +58,8 @@ def main():
             for n, shortcut in enumerate(shortcuts):
                 x = (n/2) * column_width
                 y = 1 if not n%2 else 2
-                shortcut_win.addstr(y, x, ('^%s: %s' % shortcut))
+                shortcut_win.addstr(y, x, '^' + shortcut[0], curses.A_REVERSE)
+                shortcut_win.addstr(' ' + shortcut[1])
             
             if editor.status:
                 total_gap = width - len(editor.status) - 1
@@ -112,6 +113,12 @@ def main():
                         
                     elif shortcut == 'back':
                         editor.back()
+                        
+                    elif shortcut == 'new note':
+                        editor.load_note(None)
+                        
+                    elif shortcut == 'settings':
+                        editor.load_note('**settings**')
                         
                     handled_key = True
             if not handled_key:
@@ -171,6 +178,7 @@ def main():
         except Exception as e:
             editor.status = 'exception: %s' % e
             end_state = editor.status
+            running = False
         
     end_app(screen)
     if end_state: print end_state

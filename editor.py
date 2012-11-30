@@ -46,9 +46,9 @@ class Editor:
                 with open(note_path) as note_file:
                     self.buffer = [r.rstrip('\n') for r in note_file.readlines()]    
                 self.status = 'Loaded note %s from %s' % (note_name, note_path)
-                if not going_back:
-                    self.history = self.history[:self.history_position+1] + [note_name]
-                    self.history_position = len(self.history) - 1
+            if not going_back:
+                self.history = self.history[:self.history_position+1] + [note_name]
+                self.history_position = len(self.history) - 1
         except: 
             self.buffer = []
             self.status = "Couldn't find note %s" % note_name
@@ -64,6 +64,8 @@ class Editor:
             note_file.write('\n'.join(self.buffer))
         self.status = 'Saved note %s to %s' % (note_name, note_path)
         self.altered = False
+        self.current_note = note_name
+        self.history[self.history_position] = note_name
         
     def forward(self):
         if self.history_position < len(self.history)-1:
