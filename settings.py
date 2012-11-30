@@ -23,6 +23,8 @@ if config.has_section('nanote'):
 else:
     NOTE_SEARCH_PATHS = config.defaults()['path']
 
+NOTE_SEARCH_PATHS = '.:' + NOTE_SEARCH_PATHS
+
 NOTE_SEARCH_PATHS = [os.path.expanduser(p) for p in NOTE_SEARCH_PATHS.split(':')]
 
 
