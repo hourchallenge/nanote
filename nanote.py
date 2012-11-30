@@ -1,6 +1,5 @@
 import curses
 import re
-import settings
 from editor import Editor
 
 
@@ -8,6 +7,8 @@ nonwords = ' .,;-_'
 
 def main():
     running = True
+    
+    import settings
 
     default_note = settings.args['default_note']
     editor = Editor(default_note)
@@ -29,7 +30,6 @@ def main():
                     elif shortcut == 'save':
                         editor.save_note(editor.current_note)
                         if editor.current_note == '**settings**':
-                            global settings
                             settings = reload(settings)
                         
                     elif shortcut == 'goto note':

@@ -30,17 +30,20 @@ defaults = {
             'tab_width': '4',
 }
 
-config = ConfigParser.SafeConfigParser(defaults)
+config = ConfigParser.SafeConfigParser()
+if not config.has_section('nanote'): config.add_section('nanote')
+for key, value in defaults.items():
+    config.set('nanote', key, value)
 config.read(config_file_path)
+if not os.path.exists(config_file_path): 
+    with open(config_file_path, 'w') as output_file:
+        config.write(output_file)
 
 # get note search paths
 # TODO: parse sys.argv arguments
 args = {}
 for arg in ('path', 'default_note', 'tab_width'):
-    if config.has_section('nanote'):
-        args[arg] = config.get('nanote', arg)
-    else:
-        args[arg] = config.defaults()[arg]
+    args[arg] = config.get('nanote', arg)
         
 args['tab_width'] = int(args['tab_width'])
 

@@ -1,10 +1,13 @@
 import curses
-import settings
+import settings as settings_module
 import re
 
 
 class Editor:
     def __init__(self, start_note=None):
+        import settings
+        self.settings = settings
+        
         self.start_app()
         
         self.cursor = (0,0)
@@ -38,6 +41,8 @@ class Editor:
         curses.endwin()
         
     def draw_screen(self):
+        settings = self.settings
+        
         self.screen.refresh()
         
         screen_size = self.screen.getmaxyx()
@@ -143,6 +148,8 @@ class Editor:
         self.cursor = (cy, cx)
         
     def load_note(self, note_name, going_back = False):
+        settings = self.settings
+        
         if self.altered:
             response = self.dialog('Save changes to old note? (Y or N, ^C to cancel)', yesno=True)
             if response is None: return
@@ -168,6 +175,8 @@ class Editor:
         self.altered = False
         
     def save_note(self, note_name):
+        settings = self.settings
+        
         note_name = self.dialog('Enter the name of the note to save:', note_name)
         note_path = settings.find_note(note_name)
         if not note_path: note_path = settings.default_note_path(note_name)
@@ -180,9 +189,8 @@ class Editor:
         self.current_note = note_name
         self.history[self.history_position] = note_name
         
-        if note_name == '**settings**': 
-            global settings
-            settings = reload(settings)
+        if note_name == '**settings**':
+            self.settings = reload(settings)
         
     def forward(self):
         if self.history_position < len(self.history)-1:
