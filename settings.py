@@ -44,3 +44,7 @@ def find_note(note_name):
     for path in note_paths:
         if os.path.exists(path): return path
     return None
+    
+def default_note_path(note_name):
+    note_name = note_name.replace(':', '/')
+    return os.path.join(NOTE_SEARCH_PATHS[-1], note_name)

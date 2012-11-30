@@ -44,6 +44,18 @@ def correct_cursor(cy, cx, buffer):
         cx = 0
         return correct_cursor(cy, cx, buffer)
     return (cy, cx)
+    
+def load_note(note_name):
+    try:
+        with open(settings.find_note(note_name)) as note_file:
+            return note_file.readlines()
+    except: return []
+    
+def save_note(note_name, buffer):
+    note_path = settings.find_note(note_name)
+    if not note_path: note_path = settings.default_note_path(note_name)
+    with open(note_path, 'w') as note_file:
+        note_file.write('\n'.join(buffer))
 
 def main():
     screen = start_app()
@@ -55,10 +67,9 @@ def main():
     default_note = settings.args['default_note']
     if default_note:
         current_note = default_note
-        with open(settings.find_note(current_note)) as note_file:
-            buffer = note_file.readlines()
+        buffer = load_note(current_note)
     else: 
-        current_note = None
+        current_note = 'untitled'
         buffer = ['test[abc]', 'line 2', 'line 3', '', 'line 5']
 
     end_state = None
@@ -111,7 +122,7 @@ def main():
                         running = False
                     elif shortcut == 'save':
                         # TODO: write function to save notes
-                        save_note(current_note, '\n'.join(buffer))
+                        save_note(current_note, buffer)
             if not handled_key:
                 if c == curses.KEY_UP:
                     cursor = correct_cursor(cy-1, min(cx, len(buffer[cy-1]) if 0 <= cy-1 < len(buffer) else 0), buffer)
@@ -123,8 +134,15 @@ def main():
                     cursor = correct_cursor(cy, cx+1, buffer)
                 elif c == ord('\n'):
                     # TODO: check if you're on a link, then follow that link if you are
-                    buffer = buffer[:cy] + [buffer[cy][:cx]] + [buffer[cy][cx:]] + buffer[cy+1:]
-                    cursor = correct_cursor(cy+1, 0, buffer)
+                    follow_link = False
+                    for pos, text in links:
+                        if pos <= cx <= pos+len(text):
+                            follow_link = text
+                            current_note = follow_link
+                            buffer = load_note(current_note)
+                    if not follow_link:
+                        buffer = buffer[:cy] + [buffer[cy][:cx]] + [buffer[cy][cx:]] + buffer[cy+1:]
+                        cursor = correct_cursor(cy+1, 0, buffer)
                 elif c == curses.KEY_BACKSPACE:
                     if cy < len(buffer[cy]):
                         if cx > 0:
@@ -149,6 +167,7 @@ def main():
                         cursor = correct_cursor(cy, len(buffer[cy]), buffer)
                 # TODO: c<255? not all of those are good characters
                 elif c < 255:
+                    if cy > len(buffer)-1: buffer += ['']
                     buffer[cy] = buffer[cy][:cx] + chr(c) + buffer[cy][cx:]
                     cursor = correct_cursor(cy, cx+1, buffer)
 
