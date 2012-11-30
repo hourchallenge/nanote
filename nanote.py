@@ -111,8 +111,35 @@ def main():
                 elif c == curses.KEY_RIGHT:
                     cursor = correct_cursor(cy, cx+1, buffer)
                 elif c == ord('\n'):
+                    # TODO: check if you're on a link, then follow that link if you are
                     buffer = buffer[:cy] + [buffer[cy][:cx]] + [buffer[cy][cx:]] + buffer[cy+1:]
                     cursor = correct_cursor(cy+1, 0, buffer)
+                elif c == curses.KEY_BACKSPACE:
+                    if cy < len(buffer[cy]):
+                        if cx > 0:
+                            buffer[cy] = buffer[cy][:cx-1] + buffer[cy][cx:]
+                        else:
+                            buffer = buffer[:cy-1] + [buffer[cy-1] + buffer[cy]] + buffer[cy+1:]
+                    cursor = correct_cursor(cy, cx-1, buffer)
+                elif c == curses.KEY_DC:
+                    if cy < len(buffer[cy]):
+                        if buffer[cy]:
+                            buffer[cy] = buffer[cy][:cx] + buffer[cy][cx+1:]
+                        else:
+                            buffer = buffer[:cy] + buffer[cy+1:]
+                elif c == curses.KEY_HOME:
+                    if cx == 0:
+                        # TODO: smart home (go to first non-space character)
+                        cursor = correct_cursor(cy, cx, buffer)
+                    else:
+                        cursor = correct_cursor(cy, 0, buffer)
+                elif c == curses.KEY_END:
+                    if cy < len(buffer):
+                        cursor = correct_cursor(cy, len(buffer[cy]), buffer)
+                # TODO: c<255? not all of those are good characters
+                elif c < 255:
+                    buffer[cy] = buffer[cy][:cx] + chr(c) + buffer[cy][cx:]
+                    cursor = correct_cursor(cy, cx+1, buffer)
 
         except KeyboardInterrupt:
             running = False
