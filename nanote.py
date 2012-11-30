@@ -56,6 +56,8 @@ def load_note(note_name):
 def save_note(note_name, buffer):
     note_path = settings.find_note(note_name)
     if not note_path: note_path = settings.default_note_path(note_name)
+    directory = '/'.join(note_path.split('/')[:-1])
+    settings.make_dir_if_not_exists(directory)
     with open(note_path, 'w') as note_file:
         note_file.write('\n'.join(buffer))
     return note_path
@@ -77,6 +79,7 @@ def main():
 
     end_state = None
     status = ''
+    altered = False
 
     while running:
         try:
@@ -94,17 +97,21 @@ def main():
                 x = (n/2) * column_width
                 y = 1 if not n%2 else 2
                 shortcut_win.addstr(y, x, ('^%s: %s' % shortcut))
-            gap = width-len(status)-1
             
             if status:
-                shortcut_win.addstr(0, 0, ' '*(gap/2) + status + ' '*(gap/2))
+                total_gap = width - len(status) - 1
+                left_gap = total_gap/2
+                right_gap = total_gap-left_gap
+                shortcut_win.addstr(0, 0, ' '*(left_gap) + status + ' '*(right_gap), curses.A_REVERSE)
                 status = ''
                 
             shortcut_win.refresh()
 
             title_text = 'nanote' + str(current_note)
-            gap = (width-1-len(title_text))/2
-            title_win.addstr('nanote' + ' '*gap + str(current_note) + ' '*gap, curses.A_REVERSE)
+            total_gap = width - len(title_text) - 1
+            left_gap = total_gap/2
+            right_gap = total_gap-left_gap
+            title_win.addstr('nanote' + ' '*left_gap + str(current_note) + ' '*right_gap, curses.A_REVERSE)
             title_win.refresh()
 
             buffer_pad.addstr('\n'.join(buffer))
@@ -153,9 +160,11 @@ def main():
                             buffer = load_note(current_note)
                             cursor = (0,0)
                     if not follow_link:
+                        altered = True
                         buffer = buffer[:cy] + [buffer[cy][:cx]] + [buffer[cy][cx:]] + buffer[cy+1:]
                         cursor = correct_cursor(cy+1, 0, buffer)
                 elif c == curses.KEY_BACKSPACE:
+                    altered = True
                     if cy < len(buffer[cy]):
                         if cx > 0:
                             buffer[cy] = buffer[cy][:cx-1] + buffer[cy][cx:]
@@ -163,6 +172,7 @@ def main():
                             buffer = buffer[:cy-1] + [buffer[cy-1] + buffer[cy]] + buffer[cy+1:]
                     cursor = correct_cursor(cy, cx-1, buffer)
                 elif c == curses.KEY_DC:
+                    altered = True
                     if cy < len(buffer[cy]):
                         if buffer[cy]:
                             buffer[cy] = buffer[cy][:cx] + buffer[cy][cx+1:]
@@ -179,6 +189,7 @@ def main():
                         cursor = correct_cursor(cy, len(buffer[cy]), buffer)
                 # TODO: c<255? not all of those are good characters
                 elif c < 255:
+                    altered = True
                     if cy > len(buffer)-1: buffer += ['']
                     buffer[cy] = buffer[cy][:cx] + chr(c) + buffer[cy][cx:]
                     cursor = correct_cursor(cy, cx+1, buffer)
