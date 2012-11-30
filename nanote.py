@@ -50,7 +50,7 @@ def correct_cursor(cy, cx, buffer):
 def load_note(note_name):
     try:
         with open(settings.find_note(note_name)) as note_file:
-            return note_file.readlines()
+            return [r.rstrip('\n') for r in note_file.readlines()]
     except: return []
     
 def save_note(note_name, buffer):
@@ -58,6 +58,7 @@ def save_note(note_name, buffer):
     if not note_path: note_path = settings.default_note_path(note_name)
     with open(note_path, 'w') as note_file:
         note_file.write('\n'.join(buffer))
+    return note_path
 
 def main():
     screen = start_app()
@@ -75,6 +76,7 @@ def main():
         buffer = ['test[abc]', 'line 2', 'line 3', '', 'line 5']
 
     end_state = None
+    status = ''
 
     while running:
         try:
@@ -92,8 +94,11 @@ def main():
                 x = (n/2) * column_width
                 y = 1 if not n%2 else 2
                 shortcut_win.addstr(y, x, ('^%s: %s' % shortcut))
-
-            screen.move(cursor[0]+1, cursor[1])
+            gap = width-len(status)-1
+            
+            if status:
+                shortcut_win.addstr(0, 0, ' '*(gap/2) + status + ' '*(gap/2))
+                status = ''
                 
             shortcut_win.refresh()
 
@@ -114,6 +119,7 @@ def main():
                     if i == cy: links.append((pos, text))
             buffer_pad.refresh(pad_position[0], pad_position[1], 1, 0, height-4, width)
 
+            screen.move(cursor[0]+1, cursor[1])
             screen.refresh()
 
             c = screen.getch()
@@ -122,9 +128,13 @@ def main():
                 if c == ord(key)-64:
                     if shortcut == 'quit':
                         running = False
+                        
                     elif shortcut == 'save':
                         # TODO: write function to save notes
-                        save_note(current_note, buffer)
+                        save_result = save_note(current_note, buffer)
+                        status = 'Saved to %s' % save_result
+                        
+                    handled_key = True
             if not handled_key:
                 if c == curses.KEY_UP:
                     cursor = correct_cursor(cy-1, min(cx, len(buffer[cy-1]) if 0 <= cy-1 < len(buffer) else 0), buffer)
@@ -135,13 +145,13 @@ def main():
                 elif c == curses.KEY_RIGHT:
                     cursor = correct_cursor(cy, cx+1, buffer)
                 elif c == ord('\n'):
-                    # TODO: check if you're on a link, then follow that link if you are
                     follow_link = False
                     for pos, text in links:
-                        if pos <= cx <= pos+len(text):
-                            follow_link = text
+                        if pos < cx < pos+len(text):
+                            follow_link = text[1:-1]
                             current_note = follow_link
                             buffer = load_note(current_note)
+                            cursor = (0,0)
                     if not follow_link:
                         buffer = buffer[:cy] + [buffer[cy][:cx]] + [buffer[cy][cx:]] + buffer[cy+1:]
                         cursor = correct_cursor(cy+1, 0, buffer)
