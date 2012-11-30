@@ -106,12 +106,16 @@ def main():
                         editor.correct_cursor(cy+1, 0)
                 elif c == curses.KEY_BACKSPACE:
                     editor.altered = True
-                    if cy < len(editor.buffer[cy]):
+                    if cy < len(editor.buffer[cy])-1:
                         if cx > 0:
-                            editor.buffer[cy] = editor.buffer[cy][:cx-1] + editor.buffer[cy][cx:]
+                            editor.buffer[cy] = editor.buffer[cy][:cx-1] + (editor.buffer[cy][cx:] if cx < len(editor.buffer[cy]) else '')
+                            editor.correct_cursor(cy, cx-1)
                         else:
+                            editor.correct_cursor(cy, cx-1)
                             editor.buffer = editor.buffer[:cy-1] + [editor.buffer[cy-1] + editor.buffer[cy]] + editor.buffer[cy+1:]
-                    editor.correct_cursor(cy, cx-1)
+                    else:
+                        pass
+                    
                 elif c == ord('\t'):
                     # tab
                     tab = ' '*settings.args['tab_width']
