@@ -180,6 +180,10 @@ class Editor:
         self.current_note = note_name
         self.history[self.history_position] = note_name
         
+        if note_name == '**settings**': 
+            global settings
+            settings = reload(settings)
+        
     def forward(self):
         if self.history_position < len(self.history)-1:
             self.history_position += 1

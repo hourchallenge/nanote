@@ -28,6 +28,9 @@ def main():
                         
                     elif shortcut == 'save':
                         editor.save_note(editor.current_note)
+                        if editor.current_note == '**settings**':
+                            global settings
+                            settings = reload(settings)
                         
                     elif shortcut == 'goto note':
                         result = editor.dialog('Enter the name of the note to load (^C to cancel):')
@@ -106,7 +109,6 @@ def main():
                     if cy < len(editor.buffer[cy]):
                         if cx > 0:
                             editor.buffer[cy] = editor.buffer[cy][:cx-1] + editor.buffer[cy][cx:]
-                            editor.status = 'backspace'
                         else:
                             editor.buffer = editor.buffer[:cy-1] + [editor.buffer[cy-1] + editor.buffer[cy]] + editor.buffer[cy+1:]
                     editor.correct_cursor(cy, cx-1)
@@ -156,7 +158,7 @@ def main():
         except Exception as e:
             editor.status = 'exception: %s' % e
             end_state = editor.status
-            running = False
+            #running = False
         
     editor.end_app()
     if end_state: print end_state
