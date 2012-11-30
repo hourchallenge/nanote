@@ -73,7 +73,7 @@ def main():
         buffer = load_note(current_note)
     else: 
         current_note = 'untitled'
-        buffer = ['test[abc]', 'line 2', 'line 3', '', 'line 5']
+        buffer = ['This is a test note.', '', 'You can link to other notes like this: [school:homework].', 'Put the cursor over a link and press ENTER to follow it.']
 
     end_state = None
     status = ''
@@ -111,7 +111,7 @@ def main():
             check_for_links_range = range(pad_position[0], min(pad_position[0] + height-3, pad_position[0] + len(buffer) - 1))
             links = []
             for n, i in enumerate(check_for_links_range):
-                p = re.compile("\[[a-zA-Z\_\-\.]+\]")
+                p = re.compile("\[[a-zA-Z\_\-\.\:]+\]")
                 for m in p.finditer(buffer[i]):
                     pos = m.start()
                     text = m.group()
