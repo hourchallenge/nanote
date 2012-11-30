@@ -2,6 +2,8 @@ import settings
 
 class Editor:
     def __init__(self, start_note):
+        self.start_app()
+        
         start_note = 'school:homework'
         self.cursor = (0,0)
         self.pad_position = (0,0)
@@ -17,7 +19,21 @@ class Editor:
             self.current_note = None
             self.buffer = ['This is a test note.', '', 'You can link to other notes like this: [school:homework].', 'Put the cursor over a link and press ENTER to follow it.']
 
-    
+
+    def start_app(self):
+        # start the application
+        self.screen = curses.initscr()
+        curses.noecho()
+        curses.cbreak()
+        self.screen.keypad(1)
+
+    def end_app(self):
+        # end the application
+        curses.nocbreak()
+        self.screen.keypad(0)
+        curses.echo()
+        curses.endwin()
+
     
     def correct_cursor(self, cy, cx):
         buffer = self.buffer

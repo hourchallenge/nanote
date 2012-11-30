@@ -16,26 +16,9 @@ shortcuts = [
              ('T', 'settings'),
              ]
 
-def start_app():
-    # start the application; returns a curses screen
-    screen = curses.initscr()
-    curses.noecho()
-    curses.cbreak()
-    screen.keypad(1)
-    return screen
-
-def end_app(screen):
-    # end the application
-    curses.nocbreak()
-    screen.keypad(0)
-    curses.echo()
-    curses.endwin()
-
     
 
 def main():
-    screen = start_app()
-
     running = True
 
     default_note = settings.args['default_note']
@@ -45,7 +28,7 @@ def main():
 
     while running:
         try:
-            screen_size = screen.getmaxyx()
+            screen_size = editor.screen.getmaxyx()
             height, width = screen_size
             cy, cx = editor.cursor
 
@@ -90,10 +73,10 @@ def main():
                     if i == cy: links.append((pos, text))
             buffer_pad.refresh(editor.pad_position[0], editor.pad_position[1], 1, 0, height-4, width)
 
-            screen.move(cy+1, cx)
-            screen.refresh()
+            editor.screen.move(cy+1, cx)
+            editor.screen.refresh()
 
-            c = screen.getch()
+            c = editor.screen.getch()
             handled_key = False
             for key, shortcut in shortcuts:
                 if c == ord(key)-64:
@@ -104,7 +87,7 @@ def main():
                         editor.save_note(editor.current_note)
                         
                     elif shortcut == 'goto note':
-                        result = dialog('Enter the name of the note to load (^C to cancel):')
+                        result = editor.dialog('Enter the name of the note to load (^C to cancel):')
                         if result:
                             editor.load_note(result)
                             
