@@ -4,20 +4,6 @@ import settings
 from editor import Editor
 
 
-shortcuts = [
-             ('O', 'save'),
-             ('X', 'quit'),
-             ('N', 'new note'),
-             ('G', 'goto note'),
-             ('K', 'cut'),
-             ('U', 'paste'),
-             ('B', 'back'),
-             ('F', 'forward'),
-             ('T', 'settings'),
-             ]
-
-    
-
 def main():
     running = True
 
@@ -28,57 +14,12 @@ def main():
 
     while running:
         try:
-            screen_size = editor.screen.getmaxyx()
-            height, width = screen_size
+            editor.draw_screen()
             cy, cx = editor.cursor
-
-            buffer_pad = curses.newpad(height, width)
-            title_win = curses.newwin(1, width, 0, 0)
-            shortcut_win = curses.newwin(3, width, height-3, 0)
-
-            columns = int((len(shortcuts)+.5)/2)
-            column_width = width / (columns + 1)
-            for n, shortcut in enumerate(shortcuts):
-                x = (n/2) * column_width
-                y = 1 if not n%2 else 2
-                shortcut_win.addstr(y, x, '^' + shortcut[0], curses.A_REVERSE)
-                shortcut_win.addstr(' ' + shortcut[1])
-            
-            if editor.status:
-                total_gap = width - len(editor.status) - 1
-                left_gap = total_gap/2
-                right_gap = total_gap-left_gap
-                shortcut_win.addstr(0, 0, ' '*(left_gap) + editor.status + ' '*(right_gap), curses.A_REVERSE)
-                editor.status = ''
-                
-            shortcut_win.refresh()
-
-            note_name = editor.current_note if editor.current_note else 'untitled'
-            title_text = 'nanote' + str(note_name)
-            total_gap = width - len(title_text) - 1
-            left_gap = total_gap/2
-            right_gap = total_gap-left_gap
-            title_win.addstr('nanote' + ' '*left_gap + str(note_name) + ' '*right_gap, curses.A_REVERSE)
-            title_win.refresh()
-
-            buffer_pad.addstr('\n'.join(editor.buffer))
-            check_for_links_range = range(editor.pad_position[0], min(editor.pad_position[0] + height-3, editor.pad_position[0] + len(editor.buffer) - 1))
-            links = []
-            for n, i in enumerate(check_for_links_range):
-                p = re.compile("\[[a-zA-Z\_\-\.\:]+\]")
-                for m in p.finditer(editor.buffer[i]):
-                    pos = m.start()
-                    text = m.group()
-                    buffer_pad.addstr(n, pos, text, curses.A_REVERSE)
-                    if i == cy: links.append((pos, text))
-            buffer_pad.refresh(editor.pad_position[0], editor.pad_position[1], 1, 0, height-4, width)
-
-            editor.screen.move(cy+1, cx)
-            editor.screen.refresh()
 
             c = editor.screen.getch()
             handled_key = False
-            for key, shortcut in shortcuts:
+            for key, shortcut in settings.shortcuts:
                 if c == ord(key)-64:
                     if shortcut == 'quit':
                         running = False
@@ -115,7 +56,7 @@ def main():
                     editor.correct_cursor(cy, cx+1)
                 elif c == ord('\n'):
                     follow_link = False
-                    for pos, text in links:
+                    for pos, text in editor.links:
                         if pos < cx < pos+len(text):
                             follow_link = text[1:-1]
                             current_note = follow_link
@@ -163,7 +104,7 @@ def main():
             end_state = editor.status
             running = False
         
-    end_app(screen)
+    editor.end_app()
     if end_state: print end_state
 
 if __name__ == '__main__':

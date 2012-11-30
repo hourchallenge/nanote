@@ -4,6 +4,19 @@ import os
 import sys
 
 
+
+shortcuts = [
+             ('O', 'save'),
+             ('X', 'quit'),
+             ('N', 'new note'),
+             ('G', 'goto note'),
+             ('K', 'cut'),
+             ('U', 'paste'),
+             ('B', 'back'),
+             ('F', 'forward'),
+             ('T', 'settings'),
+             ]
+
 def make_dir_if_not_exists(path):
     if not os.path.exists(path): os.makedirs(path)
 
@@ -39,6 +52,7 @@ for path in NOTE_SEARCH_PATHS:
 def find_note(note_name):
     # given a note name (i.e. school:homework), search {path}/school/homework for all 
     # paths on the note search path
+    if note_name == '**settings**': return config_file_path
     note_name = note_name.replace(':', '/')
     note_paths = [os.path.join(path, note_name) for path in NOTE_SEARCH_PATHS]
     for path in note_paths:
