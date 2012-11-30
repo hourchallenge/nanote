@@ -39,6 +39,8 @@ class Editor:
         curses.endwin()
         
     def draw_screen(self):
+        self.screen.refresh()
+        
         screen_size = self.screen.getmaxyx()
         self.height, self.width = screen_size
         height, width = self.height, self.width
