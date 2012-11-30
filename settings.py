@@ -11,19 +11,24 @@ home_dir = os.path.expanduser('~/.nanote/')
 make_dir_if_not_exists(home_dir)
 config_file_path = os.path.join(home_dir, 'settings')
 
-defaults = {'path': os.path.join(home_dir, 'notes')}
+defaults = {
+            'path': os.path.join(home_dir, 'notes'),
+            'default_note': '',
+}
 
 config = ConfigParser.SafeConfigParser(defaults)
 config.read(config_file_path)
 
 # get note search paths
 # TODO: parse sys.argv arguments
-if config.has_section('nanote'):
-    NOTE_SEARCH_PATHS = config.get('nanote', 'path')
-else:
-    NOTE_SEARCH_PATHS = config.defaults()['path']
+args = {}
+for arg in ('path', 'default_note'):
+    if config.has_section('nanote'):
+        args[arg] = config.get('nanote', arg)
+    else:
+        args[arg] = config.defaults()[arg]
 
-NOTE_SEARCH_PATHS = '.:' + NOTE_SEARCH_PATHS
+NOTE_SEARCH_PATHS = '.:' + args['path']
 
 NOTE_SEARCH_PATHS = [os.path.expanduser(p) for p in NOTE_SEARCH_PATHS.split(':')]
 
