@@ -100,13 +100,18 @@ def main():
                         running = False
                         
                     elif shortcut == 'save':
-                        # TODO: write function to save notes
-                        editor.save_note(current_note)
+                        editor.save_note(editor.current_note)
                         
                     elif shortcut == 'goto note':
                         result = dialog('Enter the name of the note to load (^C to cancel):')
                         if result:
                             editor.load_note(result)
+                            
+                    elif shortcut == 'forward':
+                        editor.forward()
+                        
+                    elif shortcut == 'back':
+                        editor.back()
                         
                     handled_key = True
             if not handled_key:
@@ -164,9 +169,8 @@ def main():
             running = False
             
         except Exception as e:
-            raise
-            end_state = e
-            running = False
+            editor.status = 'exception: %s' % e
+            end_state = editor.status
         
     end_app(screen)
     if end_state: print end_state
