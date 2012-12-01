@@ -25,7 +25,16 @@ def main():
             for key, shortcut in settings.shortcuts:
                 if c == ord(key)-64:
                     if shortcut == 'quit':
-                        running = False
+                        if editor.altered:
+                            result = editor.dialog('Save before quitting? (Y or N)', yesno=True)
+                            
+                            if result is None: 
+                                pass
+                            elif result:
+                                editor.save_note(editor.current_note)
+                                running = False
+                            else: running = False
+                        else: running = False
                         
                     elif shortcut == 'save':
                         editor.save_note(editor.current_note)
