@@ -120,19 +120,11 @@ def main():
                                              [editor.buffer[cy][cx:]] + editor.buffer[cy+1:])
                         editor.correct_cursor(cy+1, 0)
                 elif c == curses.KEY_BACKSPACE:
-                    editor.altered = True
-
                     editor.correct_cursor(cy, cx-1)
-                    del_character = cx-1
-                    if del_character < 0 and cy > 0:
-                        if cy < len(editor.buffer):
-                            new_buffer = editor.buffer[:cy-1]
-                            new_buffer += [editor.buffer[cy-1] + editor.buffer[cy]]
-                            if cy < len(editor.buffer)-1: new_buffer += editor.buffer[cy+1:]
-                            editor.buffer = new_buffer
-                    elif del_character >= 0:
-                        editor.buffer[cy] = editor.buffer[cy][:del_character] + editor.buffer[cy][del_character+1:]
-
+                    editor.del_char(cy, cx-1)
+                elif c == curses.KEY_DC:
+                    editor.altered = True
+                    editor.del_char(cy, cx)
                 elif c == ord('\t'):
                     # tab
                     tab = ' '*settings.args['tab_width']
@@ -147,13 +139,6 @@ def main():
                     if cy < len(editor.buffer) and editor.buffer[cy].startswith(tab):
                         editor.buffer[cy] = editor.buffer[cy][len(tab):]
                         editor.correct_cursor(cy, cx-len(tab))
-                elif c == curses.KEY_DC:
-                    editor.altered = True
-                    if cy < len(editor.buffer[cy]):
-                        if editor.buffer[cy]:
-                            editor.buffer[cy] = editor.buffer[cy][:cx] + editor.buffer[cy][cx+1:]
-                        else:
-                            editor.buffer = editor.buffer[:cy] + editor.buffer[cy+1:]
                 elif c == curses.KEY_HOME:
                     if cx == 0 and cy < len(editor.buffer) and editor.buffer[cy]:
                         stripped = editor.buffer[cy].lstrip(' ')

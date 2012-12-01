@@ -266,3 +266,16 @@ class Editor:
         if self.history_position > 0:
             self.history_position -= 1
             self.load_note(self.history[self.history_position], going_back=True)
+
+    def del_char(self, cy, cx):
+        self.altered = True
+
+        if cx < 0 and cy > 0:
+            if cy < len(self.buffer):
+                new_buffer = self.buffer[:cy-1]
+                new_buffer += [self.buffer[cy-1] + self.buffer[cy]]
+                if cy < len(self.buffer)-1: new_buffer += self.buffer[cy+1:]
+                self.buffer = new_buffer
+        elif cx >= 0:
+            self.buffer[cy] = self.buffer[cy][:cx] + self.buffer[cy][cx+1:]
+
