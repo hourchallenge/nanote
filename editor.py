@@ -93,8 +93,8 @@ class Editor:
         check_for_links_range = range(self.pad_position[0], min(self.pad_position[0] + height-3, self.pad_position[0] + len(self.buffer) - 1)+1)
         self.links = []
         link_re = re.compile("\[[a-zA-Z\_\-\.\:]+\]")
-        bold_re = re.compile("\*[^ ^\[^\]][^\[^\]]*?\*")
-        underline_re = re.compile("\_[^ ^\[^\]][^\[^\]]*?\_")
+        bold_re = re.compile("\*[^ ^\[^\]^*^_][^\[^\]^*^_]*?\*")
+        underline_re = re.compile("\_[^ ^\[^\]^*^_][^\[^\]^*^_]*?\_")
         bullet_re = re.compile('^ *\* .*')
         for n, i in enumerate(check_for_links_range):
             for m in link_re.finditer(self.buffer[i]):
