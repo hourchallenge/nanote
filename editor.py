@@ -59,8 +59,11 @@ class Editor:
         self.height, self.width = screen_size
         height, width = self.height, self.width
         cy, cx = self.cursor
+        py, px = self.pad_position
 
-        self.buffer_pad = curses.newpad(height, width)
+        self.buffer_pad = curses.newwin(height-4, width, 1, 0)
+        #self.buffer_pad = curses.newpad(len(self.buffer) + height + 1, 
+        #                                max([len(line) for line in self.buffer] + [width]))
         self.title_win = curses.newwin(1, width, 0, 0)
         self.shortcut_win = curses.newwin(3, width, height-3, 0)
 
@@ -72,14 +75,16 @@ class Editor:
             self.shortcut_win.addstr(y, x, '^' + shortcut[0], curses.A_REVERSE)
             self.shortcut_win.addstr(' ' + shortcut[1])
         
-        if self.status:
-            total_gap = width - len(self.status) - 1
-            left_gap = total_gap/2
-            right_gap = total_gap-left_gap
-            self.shortcut_win.addstr(0, 0, ' '*(left_gap) + self.status + ' '*(right_gap), curses.A_REVERSE)
-            self.status = ''
+        if self.status: status_text = self.status
+        else: status_text = '%s  line %s, col %s' % (self.current_note, cy+1, cx+1)
+        
+        total_gap = width - len(status_text) - 1
+        left_gap = total_gap/2
+        right_gap = total_gap-left_gap
+        self.shortcut_win.addstr(0, 0, ' '*(left_gap) + status_text + ' '*(right_gap), curses.A_REVERSE)
+        self.status = ''
             
-        self.shortcut_win.refresh()
+        self.shortcut_win.noutrefresh()
 
         note_name = self.current_note if self.current_note else 'untitled'
         title_text = '  nanote %s' % (VERSION)
@@ -87,37 +92,48 @@ class Editor:
         left_gap = total_gap/2
         right_gap = total_gap-left_gap
         self.title_win.addstr(title_text + ' '*left_gap + str(note_name) + ' '*right_gap, curses.A_REVERSE)
-        self.title_win.refresh()
+        self.title_win.noutrefresh()
 
-        self.buffer_pad.addstr('\n'.join(self.buffer))
-        check_for_links_range = range(self.pad_position[0], min(self.pad_position[0] + height-3, self.pad_position[0] + len(self.buffer) - 1)+1)
+        onscreen_range = range(py, 
+                               min(py + height-3, py + len(self.buffer) - 1)+1)
+
+        for n, i in enumerate(onscreen_range):
+            try: self.buffer_pad.addstr(n, 0, self.buffer[i][:width-1])
+            except: pass
         self.links = []
         link_re = re.compile("\[[a-zA-Z\_\-\.\:]+\]")
         bold_re = re.compile("\*[^ ^\[^\]^*^_][^\[^\]^*^_]*?\*")
         underline_re = re.compile("\_[^ ^\[^\]^*^_][^\[^\]^*^_]*?\_")
         bullet_re = re.compile('^ *\* .*')
-        for n, i in enumerate(check_for_links_range):
+        for n, i in enumerate(onscreen_range):
             for m in link_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
-                self.buffer_pad.addstr(n, pos, text, curses.A_REVERSE)
+                try: self.buffer_pad.addstr(n, pos, text, curses.A_REVERSE)
+                except: pass
                 if i == cy: self.links.append((pos, text))
             for m in bold_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
-                self.buffer_pad.addstr(n, pos+1, text[1:-1], curses.A_BOLD)
+                try: self.buffer_pad.addstr(n, pos+1, text[1:-1], curses.A_BOLD)
+                except: pass
             for m in underline_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
-                self.buffer_pad.addstr(n, pos+1, text[1:-1], curses.A_UNDERLINE)
+                try: self.buffer_pad.addstr(n, pos+1, text[1:-1], curses.A_UNDERLINE)
+                except: pass
             for m in bullet_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
                 stripped_text = text.lstrip(' ')
                 indentation = len(text)-len(stripped_text)
                 indent_level = (indentation / settings.args['tab_width']) % len(tab_symbols)
-                self.buffer_pad.addstr(n, pos + indentation, tab_symbols[indent_level], curses.A_BOLD)
+                try: self.buffer_pad.addstr(n, pos + indentation, tab_symbols[indent_level], curses.A_BOLD)
+                except: pass
 
-        self.buffer_pad.refresh(self.pad_position[0], self.pad_position[1], 1, 0, height-4, width)
+        #self.buffer_pad.refresh(py, 0, 1, 0, height-4, width)
+        self.buffer_pad.noutrefresh()
 
-        self.screen.move(cy+1, cx)
-        self.screen.refresh()
+        self.screen.move(cy+1-py, cx)
+        self.screen.noutrefresh()
+        
+        curses.doupdate()
 
         
     def dialog(self, prompt, default_text='', yesno=False):
@@ -156,6 +172,7 @@ class Editor:
     
     def correct_cursor(self, cy, cx):
         buffer = self.buffer
+        py, px = self.pad_position
         if cy < 0: 
             # up too far; move to top
             cy = 0; cx = 0
@@ -170,7 +187,13 @@ class Editor:
             return self.correct_cursor(cy+1, 0)
         if (cy >= len(buffer)) and cx > 0:
             cy = len(buffer); cx = 0
+
+        while cy < py: py -= 1
+        while cy > py + self.height-5: py += 1
+        #while cx < px: px -= 1
+        while cx > self.width-1: cx -= 1
         self.cursor = (cy, cx)
+        self.pad_position = (py, px)
         
     def load_note(self, note_name, going_back = False):
         settings = self.settings

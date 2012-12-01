@@ -59,17 +59,23 @@ def main():
                         editor.load_note('**settings**')
                         
                     elif shortcut == 'paste':
+                        # TODO: paste multiple lines bug
                         if editor.cuts:
+                            if cy == len(editor.buffer): editor.buffer.append('')
                             editor.buffer = editor.buffer[:cy] + editor.cuts + editor.buffer[cy:]
                             editor.correct_cursor(cy+len(editor.cuts), cx)
+                            editor.cutting = False
                     
                     elif shortcut == 'cut':
-                        if editor.cutting:
-                            editor.cuts += editor.buffer[cy]
-                        else:
-                            editor.cuts = [editor.buffer[cy]]
+                        if cy < len(editor.buffer):
+                            if editor.cutting:
+                                editor.cuts += editor.buffer[cy]
+                            else:
+                                editor.cuts = [editor.buffer[cy]]
                             
-                        editor.buffer = editor.buffer[:cy] + editor.buffer[cy+1:]
+                            editor.buffer = editor.buffer[:cy] + (editor.buffer[cy+1:] if cy < len(editor.buffer)-1 else [])
+                            editor.correct_cursor(cy, 0)
+                            editor.cutting = True
                         
                     handled_key = True
             if not handled_key:
@@ -159,7 +165,10 @@ def main():
                 elif c == curses.KEY_END:
                     if cy < len(editor.buffer):
                         editor.correct_cursor(cy, len(editor.buffer[cy]))
-                # TODO: pagination
+                elif c == curses.KEY_PPAGE:
+                    editor.correct_cursor(cy-editor.height, 0)
+                elif c == curses.KEY_NPAGE:
+                    editor.correct_cursor(cy+editor.height, 0)
                 # TODO: c<255? not all of those are good characters
                 elif 0 < c < 255:
                     editor.altered = True
