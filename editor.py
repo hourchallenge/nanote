@@ -107,6 +107,7 @@ class Editor:
         bold_re = re.compile("\*[^ ^\[^\]^*^_][^\[^\]^*^_]*?\*")
         underline_re = re.compile("\_[^ ^\[^\]^*^_][^\[^\]^*^_]*?\_")
         bullet_re = re.compile('^ *\* .*')
+        comment_re = re.compile('\#.*')
         for n, i in enumerate(onscreen_range):
             for m in link_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
@@ -128,6 +129,10 @@ class Editor:
                 indent_level = (indentation / settings.args['tab_width']) % len(tab_symbols)
                 try: self.buffer_pad.addstr(n, pos + indentation, tab_symbols[indent_level], curses.A_BOLD)
                 except: pass
+            for m in comment_re.finditer(self.buffer[i]):
+                pos = m.start(); text = m.group()
+                self.buffer_pad.addstr(n, pos, text, curses.A_DIM)
+                #except: pass
 
         #self.buffer_pad.refresh(py, 0, 1, 0, height-4, width)
         self.buffer_pad.noutrefresh()
