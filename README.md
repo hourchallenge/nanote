@@ -1,1 +1,0 @@
-nanote is a terminal note-taking application.
