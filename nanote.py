@@ -59,7 +59,6 @@ def main():
                         editor.load_note('**settings**')
                         
                     elif shortcut == 'paste':
-                        # TODO: paste multiple lines bug
                         if editor.cuts:
                             if cy == len(editor.buffer): editor.buffer.append('')
                             editor.buffer = editor.buffer[:cy] + editor.cuts + editor.buffer[cy:]
