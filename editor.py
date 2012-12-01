@@ -183,7 +183,7 @@ class Editor:
             cy = len(buffer)
         if cx < 0:
             # left too far; move up and to the end of the previous line
-            return self.correct_cursor(cy-1, len(buffer[cy-1]))
+            return self.correct_cursor(cy-1, len(buffer[cy-1]) if cy-1 < len(buffer) else 0)
         if (cy < len(buffer)) and (cx > len(buffer[cy])): 
             # right too far; move down and to the beginning of the next line
             return self.correct_cursor(cy+1, 0)
