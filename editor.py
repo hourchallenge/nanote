@@ -24,7 +24,7 @@ class Editor:
         self.cuts = []
         
         self.load_note(start_note)
-        self.current_note = start_note
+        self.current_note = start_note if start_note else 'untitled'
         
         if not start_note and debug:
             self.buffer = ['This is a test note.', '', 
@@ -198,7 +198,8 @@ class Editor:
         
     def load_note(self, note_name, title=None, going_back = False):
         settings = self.settings
-        if not title: title = note_name
+        if not title: 
+            title = note_name if note_name else 'untitled'
         
         if self.altered:
             response = self.dialog('Save changes to old note? (Y or N, ^C to cancel)', yesno=True)
@@ -207,7 +208,6 @@ class Editor:
                 self.save_note(self.current_note)
         try:
             if not note_name:
-                title = 'untitled'
                 self.buffer = []
             else:
                 note_path = settings.find_note(note_name)
@@ -233,7 +233,7 @@ class Editor:
         
         if note_name == 'untitled': note_name = ''
         
-        note_name = self.dialog('Enter the name of the note to save:', note_name)
+        note_name = self.dialog('Enter the name of the note to save (^C to cancel):', note_name)
         if not note_name: return
         
         note_path = settings.find_note(note_name)
