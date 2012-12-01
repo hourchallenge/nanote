@@ -76,7 +76,7 @@ class Editor:
             self.shortcut_win.addstr(' ' + shortcut[1])
         
         if self.status: status_text = self.status
-        else: status_text = '%s  line %s, col %s' % (self.current_note, cy+1, cx+1)
+        else: status_text = '"%s"  line %s, col %s' % (self.current_note, cy+1, cx+1)
         
         total_gap = width - len(status_text) - 1
         left_gap = total_gap/2
@@ -95,7 +95,7 @@ class Editor:
         self.title_win.noutrefresh()
 
         onscreen_range = range(py, 
-                               min(py + height-3, py + len(self.buffer) - 1)+1)
+                               min(py + height-3 + 1, len(self.buffer) - 1)+1)
 
         for n, i in enumerate(onscreen_range):
             try: self.buffer_pad.addstr(n, 0, self.buffer[i][:width-1])
@@ -205,13 +205,12 @@ class Editor:
                 self.save_note(self.current_note)
         try:
             if not note_name:
-                self.status = 'New note'
+                note_name = 'untitled'
                 self.buffer = []
             else:
                 note_path = settings.find_note(note_name)
                 with open(note_path) as note_file:
                     self.buffer = [r.rstrip('\n') for r in note_file.readlines()]    
-                self.status = 'Loaded note %s from %s' % (note_name, note_path)
             if not going_back and not (self.history_position == len(self.history)-1 and self.history[-1] == note_name):
                 if note_name in self.history: 
                     self.history.remove(note_name)
@@ -221,6 +220,8 @@ class Editor:
         except: 
             self.buffer = []
             self.status = "Couldn't find note %s" % note_name
+            return self.load_note(None, going_back=going_back)
+            
         self.current_note = note_name
         self.cursor = (0,0)
         self.altered = False
@@ -228,7 +229,11 @@ class Editor:
     def save_note(self, note_name):
         settings = self.settings
         
+        if note_name == 'untitled': note_name = ''
+        
         note_name = self.dialog('Enter the name of the note to save:', note_name)
+        if not note_name: return
+        
         note_path = settings.find_note(note_name)
         if not note_path: note_path = settings.default_note_path(note_name)
         directory = '/'.join(note_path.split('/')[:-1])
