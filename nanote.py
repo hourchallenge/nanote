@@ -102,20 +102,23 @@ def main():
                         if cy == len(editor.buffer):
                             editor.buffer.append('')
                         else:
-                            editor.buffer = editor.buffer[:cy] + [editor.buffer[cy][:cx]] + [editor.buffer[cy][cx:]] + editor.buffer[cy+1:]
+                            editor.buffer = (editor.buffer[:cy] + [editor.buffer[cy][:cx]] + 
+                                             [editor.buffer[cy][cx:]] + editor.buffer[cy+1:])
                         editor.correct_cursor(cy+1, 0)
                 elif c == curses.KEY_BACKSPACE:
                     editor.altered = True
-                    if cy < len(editor.buffer[cy])-1:
-                        if cx > 0:
-                            editor.buffer[cy] = editor.buffer[cy][:cx-1] + (editor.buffer[cy][cx:] if cx < len(editor.buffer[cy]) else '')
-                            editor.correct_cursor(cy, cx-1)
-                        else:
-                            editor.correct_cursor(cy, cx-1)
-                            editor.buffer = editor.buffer[:cy-1] + [editor.buffer[cy-1] + editor.buffer[cy]] + editor.buffer[cy+1:]
-                    else:
-                        pass
-                    
+
+                    editor.correct_cursor(cy, cx-1)
+                    del_character = cx-1
+                    if del_character < 0 and cy > 0:
+                        if cy < len(editor.buffer):
+                            new_buffer = editor.buffer[:cy-1]
+                            new_buffer += [editor.buffer[cy-1] + editor.buffer[cy]]
+                            if cy < len(editor.buffer)-1: new_buffer += editor.buffer[cy+1:]
+                            editor.buffer = new_buffer
+                    elif del_character >= 0:
+                        editor.buffer[cy] = editor.buffer[cy][:del_character] + editor.buffer[cy][del_character+1:]
+
                 elif c == ord('\t'):
                     # tab
                     tab = ' '*settings.args['tab_width']
@@ -160,6 +163,7 @@ def main():
             running = False
             
         except Exception as e:
+            raise
             editor.status = 'exception: %s' % e
             end_state = editor.status
             #running = False
