@@ -7,7 +7,7 @@ from __init__ import VERSION
 tab_symbols = ['*', 'o', '>', '-', '+']
 
 class Editor:
-    def __init__(self, start_note=None):
+    def __init__(self, start_note=None, debug=False):
         import settings
         self.settings = settings
         
@@ -26,7 +26,7 @@ class Editor:
         self.load_note(start_note)
         self.current_note = start_note
         
-        if not start_note:
+        if not start_note and debug:
             self.buffer = ['This is a test note.', '', 
                            'You can link to other notes like this: [school:homework].', 
                            'Put the cursor over a link and press ENTER to follow it.',
