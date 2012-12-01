@@ -1,0 +1,20 @@
+This is a *test note!*
+
+You can link to other notes using brackets, like this: [school:homework:math_homework]
+Colons in note names will determine the directory structure to store them in
+(i.e. school/homework/math_homework)
+
+You can format notes with markdown, including *bold* and _underline_.
+
+Make bulleted lists using asterisks; the bullet will vary based on the level of indentation:
+* one
+    * two
+        * three
+            * four
+        * three
+    * two
+        * three
+            * four
+                * five
+                * five
+                    * etc.
