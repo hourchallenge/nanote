@@ -24,6 +24,7 @@ class Editor:
         self.cuts = []
         
         self.load_note(start_note)
+        self.current_note = start_note
         
         if not start_note:
             self.buffer = ['This is a test note.', '', 
@@ -195,8 +196,9 @@ class Editor:
         self.cursor = (cy, cx)
         self.pad_position = (py, px)
         
-    def load_note(self, note_name, going_back = False):
+    def load_note(self, note_name, title=None, going_back = False):
         settings = self.settings
+        if not title: title = note_name
         
         if self.altered:
             response = self.dialog('Save changes to old note? (Y or N, ^C to cancel)', yesno=True)
@@ -205,7 +207,7 @@ class Editor:
                 self.save_note(self.current_note)
         try:
             if not note_name:
-                note_name = 'untitled'
+                title = 'untitled'
                 self.buffer = []
             else:
                 note_path = settings.find_note(note_name)
@@ -219,10 +221,10 @@ class Editor:
                 self.history_position = len(self.history) - 1
         except: 
             self.buffer = []
-            self.status = "Couldn't find note %s" % note_name
-            return self.load_note(None, going_back=going_back)
+            self.status = "new note: %s" % note_name
+            return self.load_note(None, title=title, going_back=going_back)
             
-        self.current_note = note_name
+        self.current_note = title
         self.cursor = (0,0)
         self.altered = False
         
