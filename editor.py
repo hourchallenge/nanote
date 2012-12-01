@@ -95,7 +95,7 @@ class Editor:
         link_re = re.compile("\[[a-zA-Z\_\-\.\:]+\]")
         bold_re = re.compile("\*[^ ^\[^\]][^\[^\]]*?\*")
         underline_re = re.compile("\_[^ ^\[^\]][^\[^\]]*?\_")
-        bullet_re = re.compile(' *\* .*')
+        bullet_re = re.compile('^ *\* .*')
         for n, i in enumerate(check_for_links_range):
             for m in link_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
@@ -103,10 +103,10 @@ class Editor:
                 if i == cy: self.links.append((pos, text))
             for m in bold_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
-                self.buffer_pad.addstr(n, pos, text, curses.A_BOLD)
+                self.buffer_pad.addstr(n, pos+1, text[1:-1], curses.A_BOLD)
             for m in underline_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
-                self.buffer_pad.addstr(n, pos, text, curses.A_UNDERLINE)
+                self.buffer_pad.addstr(n, pos+1, text[1:-1], curses.A_UNDERLINE)
             for m in bullet_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
                 stripped_text = text.lstrip(' ')
