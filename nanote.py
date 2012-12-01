@@ -82,7 +82,7 @@ def main():
                     editor.correct_cursor(cy-1, min(cx, len(editor.buffer[cy-1]) if 0 <= cy-1 < len(editor.buffer) else 0))
                     editor.cutting = False
                 elif c == curses.KEY_DOWN:
-                    editor.correct_cursor(cy+1, cx)
+                    editor.correct_cursor(cy+1, min(cx, len(editor.buffer[cy+1]) if 0 < cy+1 < len(editor.buffer) else 0))
                     editor.cutting = False
                 elif c == curses.KEY_LEFT:
                     editor.correct_cursor(cy, cx-1)
