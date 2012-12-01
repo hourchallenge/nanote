@@ -4,6 +4,8 @@ import re
 from __init__ import VERSION
 
 
+tab_symbols = ['*', 'o', '>', '-', '+']
+
 class Editor:
     def __init__(self, start_note=None):
         import settings
@@ -24,7 +26,14 @@ class Editor:
         self.load_note(start_note)
         
         if not start_note:
-            self.buffer = ['This is a test note.', '', 'You can link to other notes like this: [school:homework].', 'Put the cursor over a link and press ENTER to follow it.']
+            self.buffer = ['This is a test note.', '', 
+                           'You can link to other notes like this: [school:homework].', 
+                           'Put the cursor over a link and press ENTER to follow it.',
+                           'Surround text in asterisks to *bold it*; underscores _underline text_.',
+                           '',
+                           'Make *bulleted lists* with indentation and asterisks, like this:',
+                           '* one', '    * two', '        * three', '            * four',
+                           ]
 
 
     def start_app(self):
@@ -83,13 +92,28 @@ class Editor:
         self.buffer_pad.addstr('\n'.join(self.buffer))
         check_for_links_range = range(self.pad_position[0], min(self.pad_position[0] + height-3, self.pad_position[0] + len(self.buffer) - 1)+1)
         self.links = []
+        link_re = re.compile("\[[a-zA-Z\_\-\.\:]+\]")
+        bold_re = re.compile("\*[^ ^\[^\]][^\[^\]]*?\*")
+        underline_re = re.compile("\_[^ ^\[^\]][^\[^\]]*?\_")
+        bullet_re = re.compile(' *\* .*')
         for n, i in enumerate(check_for_links_range):
-            p = re.compile("\[[a-zA-Z\_\-\.\:]+\]")
-            for m in p.finditer(self.buffer[i]):
-                pos = m.start()
-                text = m.group()
+            for m in link_re.finditer(self.buffer[i]):
+                pos = m.start(); text = m.group()
                 self.buffer_pad.addstr(n, pos, text, curses.A_REVERSE)
                 if i == cy: self.links.append((pos, text))
+            for m in bold_re.finditer(self.buffer[i]):
+                pos = m.start(); text = m.group()
+                self.buffer_pad.addstr(n, pos, text, curses.A_BOLD)
+            for m in underline_re.finditer(self.buffer[i]):
+                pos = m.start(); text = m.group()
+                self.buffer_pad.addstr(n, pos, text, curses.A_UNDERLINE)
+            for m in bullet_re.finditer(self.buffer[i]):
+                pos = m.start(); text = m.group()
+                stripped_text = text.lstrip(' ')
+                indentation = len(text)-len(stripped_text)
+                indent_level = (indentation / settings.args['tab_width']) % len(tab_symbols)
+                self.buffer_pad.addstr(n, pos + indentation, tab_symbols[indent_level], curses.A_BOLD)
+
         self.buffer_pad.refresh(self.pad_position[0], self.pad_position[1], 1, 0, height-4, width)
 
         self.screen.move(cy+1, cx)

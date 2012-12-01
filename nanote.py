@@ -141,7 +141,7 @@ def main():
                     tab = ' '*settings.args['tab_width']
                     if cy < len(editor.buffer) and editor.buffer[cy].startswith(tab):
                         editor.buffer[cy] = editor.buffer[cy][len(tab):]
-                    editor.correct_cursor(cy, cx-len(tab))
+                        editor.correct_cursor(cy, cx-len(tab))
                 elif c == curses.KEY_DC:
                     editor.altered = True
                     if cy < len(editor.buffer[cy]):
@@ -159,6 +159,7 @@ def main():
                 elif c == curses.KEY_END:
                     if cy < len(editor.buffer):
                         editor.correct_cursor(cy, len(editor.buffer[cy]))
+                # TODO: pagination
                 # TODO: c<255? not all of those are good characters
                 elif 0 < c < 255:
                     editor.altered = True
@@ -166,7 +167,7 @@ def main():
                     editor.buffer[cy] = editor.buffer[cy][:cx] + chr(c) + editor.buffer[cy][cx:]
                     editor.correct_cursor(cy, cx+1)
                     
-                #editor.status = str(c)
+                editor.status = str(c)
 
         except KeyboardInterrupt:
             running = False
