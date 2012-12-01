@@ -90,9 +90,9 @@ class Editor:
 
         note_name = self.current_note if self.current_note else 'untitled'
         title_text = '  nanote %s' % (VERSION)
-        total_gap = width - len(title_text) - len(str(note_name)) - 1
-        left_gap = total_gap/2
-        right_gap = total_gap-left_gap
+        total_gap = width - len(str(note_name)) - 1
+        left_gap = total_gap/2 - len(title_text)
+        right_gap = total_gap-left_gap-len(title_text)
         self.title_win.addstr(title_text + ' '*left_gap + str(note_name) + ' '*right_gap, curses.A_REVERSE)
         self.title_win.noutrefresh()
 

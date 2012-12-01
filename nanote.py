@@ -181,7 +181,7 @@ def main():
             running = False
             
         except Exception as e:
-            raise
+            #raise
             editor.status = 'exception: %s' % e
             end_state = editor.status
             #running = False
