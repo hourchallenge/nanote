@@ -26,7 +26,7 @@ config_file_path = os.path.join(home_dir, 'settings')
 
 defaults = {
             'path': os.path.join(home_dir, 'notes'),
-            'default_note': sys.argv[1] if len(sys.argv) > 1 else '',
+            'default_note': '',
             'tab_width': '4',
 }
 
@@ -45,6 +45,7 @@ args = {}
 for arg in ('path', 'default_note', 'tab_width'):
     args[arg] = config.get('nanote', arg)
         
+if len(sys.argv) > 1: args['default_note'] = sys.argv[1]
 args['tab_width'] = int(args['tab_width'])
 
 NOTE_SEARCH_PATHS = '.:' + args['path']
