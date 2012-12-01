@@ -204,7 +204,8 @@ class Editor:
         if self.altered:
             response = self.dialog('Save changes to old note? (Y or N, ^C to cancel)', yesno=True)
             if response is None: return
-            elif response:
+            self.altered = False
+            if response:
                 self.save_note(self.current_note)
         try:
             if not note_name:
@@ -242,7 +243,7 @@ class Editor:
         settings.make_dir_if_not_exists(directory)
         with open(note_path, 'w') as note_file:
             note_file.write('\n'.join(self.buffer))
-        self.status = 'Saved note %s to %s' % (note_name, note_path)
+        self.status = 'Saved note "%s" to %s' % (note_name, note_path)
         self.altered = False
         self.current_note = note_name
         self.history[self.history_position] = note_name
