@@ -81,7 +81,7 @@ class Editor:
         self.title_win.refresh()
 
         self.buffer_pad.addstr('\n'.join(self.buffer))
-        check_for_links_range = range(self.pad_position[0], min(self.pad_position[0] + height-3, self.pad_position[0] + len(self.buffer) - 1))
+        check_for_links_range = range(self.pad_position[0], min(self.pad_position[0] + height-3, self.pad_position[0] + len(self.buffer) - 1)+1)
         self.links = []
         for n, i in enumerate(check_for_links_range):
             p = re.compile("\[[a-zA-Z\_\-\.\:]+\]")
