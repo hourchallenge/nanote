@@ -17,3 +17,6 @@ Nanote supports linking to notes by surrounding the note name in [square_bracket
 ![nanote](http://4.bp.blogspot.com/-OwfTCgWkffQ/ULo4I2WZWQI/AAAAAAAAAEw/LW8Nx79znL8/s1600/Screenshot+from+2012-12-01+12:01:45.png)
 
 Press CTRL+T from nanote to edit the settings file. From here, you can change the path that nanote searches for notes. Multiple paths are separated by colons and searched in order; the final path is the one where new notes are written to.
+
+Use colons in note names (i.e. school:math, school:chemistry) to specify directory structure (these notes will both be
+stored in a "school" directory.)
