@@ -1,6 +1,7 @@
 import curses
 import settings as settings_module
 import re
+from __init__ import VERSION
 
 
 class Editor:
@@ -72,11 +73,11 @@ class Editor:
         self.shortcut_win.refresh()
 
         note_name = self.current_note if self.current_note else 'untitled'
-        title_text = 'nanote' + str(note_name)
-        total_gap = width - len(title_text) - 1
+        title_text = '  nanote %s' % (VERSION)
+        total_gap = width - len(title_text) - len(str(note_name)) - 1
         left_gap = total_gap/2
         right_gap = total_gap-left_gap
-        self.title_win.addstr('nanote' + ' '*left_gap + str(note_name) + ' '*right_gap, curses.A_REVERSE)
+        self.title_win.addstr(title_text + ' '*left_gap + str(note_name) + ' '*right_gap, curses.A_REVERSE)
         self.title_win.refresh()
 
         self.buffer_pad.addstr('\n'.join(self.buffer))
@@ -165,6 +166,9 @@ class Editor:
                     self.buffer = [r.rstrip('\n') for r in note_file.readlines()]    
                 self.status = 'Loaded note %s from %s' % (note_name, note_path)
             if not going_back and not (self.history_position == len(self.history)-1 and self.history[-1] == note_name):
+                if note_name in self.history: 
+                    self.history.remove(note_name)
+                    self.history_position -= 1
                 self.history = self.history[:self.history_position+1] + [note_name]
                 self.history_position = len(self.history) - 1
         except: 
