@@ -69,7 +69,7 @@ def main():
                     elif shortcut == 'cut':
                         if cy < len(editor.buffer):
                             if editor.cutting:
-                                editor.cuts += editor.buffer[cy]
+                                editor.cuts += [editor.buffer[cy]]
                             else:
                                 editor.cuts = [editor.buffer[cy]]
                             
