@@ -78,8 +78,11 @@ class Editor:
             self.shortcut_win.addstr(' ' + shortcut[1])
         
         if self.status: status_text = self.status
-        else: status_text = '"%s"  line %s/%s, col %s/%s' % (self.current_note, cy+1, len(self.buffer) + 1, 
-                                                             cx+1, len(self.buffer[cy]) if cy < len(self.buffer) else 0)
+        else: status_text = ('"%s"  line %s/%s, col %s/%s, chars %s' % 
+                             (self.current_note, cy+1, len(self.buffer) + 1, 
+                              cx+1, len(self.buffer[cy]) if cy < len(self.buffer) else 0,
+                              sum([len(buffer) for buffer in self.buffer]))
+                            )
         
         total_gap = width - len(status_text) - 1
         left_gap = total_gap/2
