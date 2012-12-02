@@ -100,7 +100,9 @@ class Editor:
                                min(py + height-3 + 1, len(self.buffer) - 1)+1)
 
         for n, i in enumerate(onscreen_range):
-            try: self.buffer_pad.addstr(n, 0, self.buffer[i][:width-1])
+            try:
+                start_x = None if cx < width-1 else cx-width+1 
+                self.buffer_pad.addstr(n, 0, self.buffer[i][start_x:max(cx, width-1)])
             except: pass
         self.links = []
         link_re = re.compile("\[[a-zA-Z\_\-\.\:]+\]")
@@ -137,7 +139,7 @@ class Editor:
         #self.buffer_pad.refresh(py, 0, 1, 0, height-4, width)
         self.buffer_pad.noutrefresh()
 
-        self.screen.move(cy+1-py, cx)
+        self.screen.move(cy+1-py, min(cx, width-1))
         self.screen.noutrefresh()
         
         curses.doupdate()
@@ -198,7 +200,7 @@ class Editor:
         while cy < py: py -= 1
         while cy > py + self.height-5: py += 1
         #while cx < px: px -= 1
-        while cx > self.width-1: cx -= 1
+        #while cx > self.width-1: cx -= 1
         self.cursor = (cy, cx)
         self.pad_position = (py, px)
         
