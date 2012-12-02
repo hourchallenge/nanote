@@ -223,7 +223,7 @@ class Editor:
                 note_path = settings.find_note(note_name)
                 if os.path.isdir(note_path):
                     title = '<%s>' % title
-                    self.buffer = ['* [%s:%s]' % (note_name, file_name) for file_name in sorted(os.listdir(note_path))]
+                    self.buffer = ['[%s:%s]' % (note_name, file_name) for file_name in sorted(os.listdir(note_path))]
                 else:
                     with open(note_path) as note_file:
                         self.buffer = [r.rstrip('\n') for r in note_file.readlines()]    
