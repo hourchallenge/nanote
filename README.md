@@ -20,3 +20,7 @@ Press CTRL+T from nanote to edit the settings file. From here, you can change th
 
 Use colons in note names (i.e. school:math, school:chemistry) to specify directory structure (these notes will both be
 stored in a "school" directory.) Running "nanote school" will then list all notes within that directory.
+
+This tool was created as part of the Hour Challenge:
+
+http://www.bendmorris.com/2012/11/hour-challenge-1130-nanote.html
