@@ -60,6 +60,8 @@ def main():
                         
                     elif shortcut == 'paste':
                         if editor.cuts:
+                            editor.altered = True
+
                             if cy == len(editor.buffer): editor.buffer.append('')
                             editor.buffer = editor.buffer[:cy] + editor.cuts + editor.buffer[cy:]
                             editor.correct_cursor(cy+len(editor.cuts), cx)
@@ -67,6 +69,8 @@ def main():
                     
                     elif shortcut == 'cut':
                         if cy < len(editor.buffer):
+                            editor.altered = True
+
                             if editor.cutting:
                                 editor.cuts += [editor.buffer[cy]]
                             else:
