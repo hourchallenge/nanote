@@ -1,5 +1,6 @@
 import curses
 import settings as settings_module
+import os
 import re
 from __init__ import VERSION
 
@@ -220,8 +221,12 @@ class Editor:
                 self.buffer = []
             else:
                 note_path = settings.find_note(note_name)
-                with open(note_path) as note_file:
-                    self.buffer = [r.rstrip('\n') for r in note_file.readlines()]    
+                if os.path.isdir(note_path):
+                    title = '<%s>' % title
+                    self.buffer = ['* [%s:%s]' % (note_name, file_name) for file_name in sorted(os.listdir(note_path))]
+                else:
+                    with open(note_path) as note_file:
+                        self.buffer = [r.rstrip('\n') for r in note_file.readlines()]    
             if not going_back and not (self.history_position == len(self.history)-1 and self.history[-1] == note_name):
                 if note_name in self.history: 
                     self.history.remove(note_name)
@@ -269,8 +274,12 @@ class Editor:
             self.history_position -= 1
             self.load_note(self.history[self.history_position], going_back=True)
 
+    def alter(self):
+        if not self.current_note.startswith('<') and self.current_note.endswith('>'):
+            self.altered = True
+
     def del_char(self, cy, cx):
-        self.altered = True
+        self.alter()
 
         if cx < 0 and cy > 0:
             if cy < len(self.buffer):

@@ -60,7 +60,7 @@ def main():
                         
                     elif shortcut == 'paste':
                         if editor.cuts:
-                            editor.altered = True
+                            editor.alter()
 
                             if cy == len(editor.buffer): editor.buffer.append('')
                             editor.buffer = editor.buffer[:cy] + editor.cuts + editor.buffer[cy:]
@@ -69,7 +69,7 @@ def main():
                     
                     elif shortcut == 'cut':
                         if cy < len(editor.buffer):
-                            editor.altered = True
+                            editor.alter()
 
                             if editor.cutting:
                                 editor.cuts += [editor.buffer[cy]]
@@ -116,7 +116,7 @@ def main():
                             current_note = follow_link
                             editor.load_note(current_note)
                     if not follow_link:
-                        editor.altered = True
+                        editor.alter()
                         if cy == len(editor.buffer):
                             editor.buffer.append('')
                         else:
@@ -127,7 +127,7 @@ def main():
                     editor.correct_cursor(cy, cx-1)
                     editor.del_char(cy, cx-1)
                 elif c == curses.KEY_DC:
-                    editor.altered = True
+                    editor.alter()
                     editor.del_char(cy, cx)
                 elif c == ord('\t'):
                     # tab
@@ -159,7 +159,7 @@ def main():
                     editor.correct_cursor(cy+editor.height, 0)
                 # TODO: c<255? not all of those are good characters
                 elif 0 < c < 255:
-                    editor.altered = True
+                    editor.alter()
                     if cy > len(editor.buffer)-1: editor.buffer += ['']
                     editor.buffer[cy] = editor.buffer[cy][:cx] + chr(c) + editor.buffer[cy][cx:]
                     editor.correct_cursor(cy, cx+1)
