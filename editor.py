@@ -110,7 +110,7 @@ class Editor:
                 self.buffer_pad.addstr(n, 0, self.buffer[i][start_x:max(cx, width-1)])
             except: pass
         self.links = []
-        link_re = re.compile("\[[a-zA-Z\_\-\.\:]+\]")
+        link_re = re.compile("\[[a-zA-Z\_\-\.\:\/]+\]")
         bold_re = re.compile("\*[^ ^\[^\]^*^_][^\[^\]^*^_]*?\*")
         underline_re = re.compile("\_[^ ^\[^\]^*^_][^\[^\]^*^_]*?\_")
         bullet_re = re.compile('^ *\* .*')
