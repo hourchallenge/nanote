@@ -164,7 +164,7 @@ def main():
                     editor.buffer[cy] = editor.buffer[cy][:cx] + chr(c) + editor.buffer[cy][cx:]
                     editor.correct_cursor(cy, cx+1)
                     
-                editor.status = str(c)
+                #editor.status = str(c)
 
         except KeyboardInterrupt:
             running = False
