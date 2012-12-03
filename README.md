@@ -1,6 +1,6 @@
 nanote is a terminal note-taking application.
 
-nanote is written in pure Python and relies only on the Python standard library. To get started, run "python setup.py install".
+nanote is written in pure Python and relies only on the Python standard library. To install, just use "pip install nanote" or download the source and run "python setup.py install".
 
 Usage: nanote [note name]
 
