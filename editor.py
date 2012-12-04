@@ -172,9 +172,10 @@ class Editor:
 
         for m in find_re.finditer('\n'.join(self.buffer)):
             pos = m.start()
-            if not first_result: first_result = pos
+            if first_result is None: first_result = pos
             if pos > current_pos: return answer(pos)
         if first_result:
+            self.status = 'Search wrapped to beginning of file'
             return answer(first_result)
 
         self.status = '"%s" not found' % find
