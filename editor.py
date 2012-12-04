@@ -17,6 +17,7 @@ class Editor:
         self.cursor = (0,0)
         self.pad_position = (0,0)
         self.status = ''
+        self.last_search = ''
         self.altered = False
         self.history = [None]
         self.history_position = 0
@@ -152,6 +153,32 @@ class Editor:
         
         curses.doupdate()
 
+
+    def find_next(self, find):
+        # search for next instance of a regex
+        self.last_search = find
+        cy, cx = self.cursor
+        find_re = re.compile(find)
+        current_pos = sum([len(self.buffer[y]) if y < cy else 0 for y in range(len(self.buffer))]) + cy + cx
+        first_result = None
+
+        def answer(pos):
+            for i, line in enumerate(self.buffer):
+                this_len = len(line)+1
+                if pos >= this_len:
+                    pos -= this_len
+                else:
+                    return self.correct_cursor(i, pos)
+
+        for m in find_re.finditer('\n'.join(self.buffer)):
+            pos = m.start()
+            if not first_result: first_result = pos
+            if pos > current_pos: return answer(pos)
+        if first_result:
+            return answer(first_result)
+
+        self.status = '"%s" not found' % find
+
         
     def dialog(self, prompt, default_text='', yesno=False):
         running = True
@@ -179,6 +206,8 @@ class Editor:
                         entered_text = entered_text[:-1]
                     elif c == ord('\n'):
                         return entered_text
+                    elif c == 27 or c == curses.KEY_DC:
+                        entered_text = ''
                     elif 0 < c < 255:
                         if len(entered_text) < 100:
                             entered_text += chr(c)

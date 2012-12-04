@@ -14,6 +14,7 @@ shortcuts = [
              ('U', 'paste'),
              ('B', 'back'),
              ('F', 'forward'),
+             ('W', 'find'),
              ('T', 'settings'),
              ]
 
