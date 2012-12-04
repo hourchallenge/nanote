@@ -64,8 +64,6 @@ class Editor:
         py, px = self.pad_position
 
         self.buffer_pad = curses.newwin(height-4, width, 1, 0)
-        #self.buffer_pad = curses.newpad(len(self.buffer) + height + 1, 
-        #                                max([len(line) for line in self.buffer] + [width]))
         self.title_win = curses.newwin(1, width, 0, 0)
         self.shortcut_win = curses.newwin(3, width, height-3, 0)
 
@@ -107,7 +105,8 @@ class Editor:
         for n, i in enumerate(onscreen_range):
             try:
                 start_x = None if cx < width-1 else cx-width+1 
-                self.buffer_pad.addstr(n, 0, self.buffer[i][start_x:max(cx, width-1)])
+                end_x = max(cx, width-1)
+                self.buffer_pad.addstr(n, 0, self.buffer[i][start_x:end_x])
             except: pass
         self.links = []
         link_re = re.compile("\[[a-zA-Z\_\-\.\:\/]+\]")
@@ -115,33 +114,37 @@ class Editor:
         underline_re = re.compile("\_[^ ^\[^\]^*^_][^\[^\]^*^_]*?\_")
         bullet_re = re.compile('^ *\* .*')
         comment_re = re.compile('\#.*')
+        def draw_trimmed_text(n, pos, text, style):
+            start_x = None if cx < width-1 else cx-width+1 
+            end_x = max(cx, width-1)
+            
+            try:
+                for i, char in enumerate(text):
+                    if start_x <= pos+i < end_x:
+                        self.buffer_pad.addstr(n, pos+i, char, style)
+            except: pass
+            
         for n, i in enumerate(onscreen_range):
             for m in link_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
-                try: self.buffer_pad.addstr(n, pos, text, curses.A_REVERSE)
-                except: pass
+                draw_trimmed_text(n, pos, text, curses.A_REVERSE)
                 if i == cy: self.links.append((pos, text))
             for m in bold_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
-                try: self.buffer_pad.addstr(n, pos+1, text[1:-1], curses.A_BOLD)
-                except: pass
+                draw_trimmed_text(n, pos+1, text[1:-1], curses.A_BOLD)
             for m in underline_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
-                try: self.buffer_pad.addstr(n, pos+1, text[1:-1], curses.A_UNDERLINE)
-                except: pass
+                draw_trimmed_text(n, pos+1, text[1:-1], curses.A_UNDERLINE)
             for m in bullet_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
                 stripped_text = text.lstrip(' ')
                 indentation = len(text)-len(stripped_text)
                 indent_level = (indentation / settings.args['tab_width']) % len(tab_symbols)
-                try: self.buffer_pad.addstr(n, pos + indentation, tab_symbols[indent_level], curses.A_BOLD)
-                except: pass
+                draw_trimmed_text(n, pos+indentation, tab_symbols[indent_level], curses.A_BOLD)
             for m in comment_re.finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
-                self.buffer_pad.addstr(n, pos, text, curses.A_DIM)
-                #except: pass
+                draw_trimmed_text(n, pos, text, curses.A_DIM)
 
-        #self.buffer_pad.refresh(py, 0, 1, 0, height-4, width)
         self.buffer_pad.noutrefresh()
 
         self.screen.move(cy+1-py, min(cx, width-1))
