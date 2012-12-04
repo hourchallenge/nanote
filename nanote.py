@@ -139,8 +139,10 @@ def main():
                     tab = ' '*settings.args['tab_width']
                     if cy == len(editor.buffer): 
                         editor.buffer.append(tab)
+                        editor.alter()
                     else:
                         editor.buffer[cy] = tab + editor.buffer[cy]
+                        editor.alter()
                     editor.correct_cursor(cy, cx+len(tab))
                 elif c == 353:
                     # shift+tab
