@@ -174,7 +174,7 @@ class Editor:
             pos = m.start()
             if first_result is None: first_result = pos
             if pos > current_pos: return answer(pos)
-        if first_result:
+        if not (first_result is None):
             self.status = 'Search wrapped to beginning of file'
             return answer(first_result)
 
