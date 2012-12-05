@@ -5,8 +5,6 @@ import re
 from __init__ import VERSION
 
 
-tab_symbols = ['*', 'o', '>', '-', '+']
-
 class Editor:
     def __init__(self, start_note=None, debug=False):
         import settings
@@ -110,11 +108,9 @@ class Editor:
                 self.buffer_pad.addstr(n, 0, self.buffer[i][start_x:end_x])
             except: pass
         self.links = []
-        link_re = re.compile("\[[a-zA-Z\_\-\.\:\/]+\]")
-        bold_re = re.compile("\*[^ ^\[^\]^*^_][^\[^\]^*^_]*?\*")
-        underline_re = re.compile("\_[^ ^\[^\]^*^_][^\[^\]^*^_]*?\_")
-        bullet_re = re.compile('^ *\* .*')
-        comment_re = re.compile('\#.*')
+
+        args = settings.args
+
         def draw_trimmed_text(n, pos, text, style):
             start_x = None if cx < width-1 else cx-width+1 
             end_x = max(cx, width-1)
@@ -126,23 +122,23 @@ class Editor:
             except: pass
             
         for n, i in enumerate(onscreen_range):
-            for m in link_re.finditer(self.buffer[i]):
+            for m in re.compile(args['link_re']).finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
                 draw_trimmed_text(n, pos, text, curses.A_REVERSE)
                 if i == cy: self.links.append((pos, text))
-            for m in bold_re.finditer(self.buffer[i]):
+            for m in re.compile(args['bold_re']).finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
                 draw_trimmed_text(n, pos+1, text[1:-1], curses.A_BOLD)
-            for m in underline_re.finditer(self.buffer[i]):
+            for m in re.compile(args['underline_re']).finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
                 draw_trimmed_text(n, pos+1, text[1:-1], curses.A_UNDERLINE)
-            for m in bullet_re.finditer(self.buffer[i]):
+            for m in re.compile(args['bullet_re']).finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
                 stripped_text = text.lstrip(' ')
                 indentation = len(text)-len(stripped_text)
-                indent_level = (indentation / settings.args['tab_width']) % len(tab_symbols)
-                draw_trimmed_text(n, pos+indentation, tab_symbols[indent_level], curses.A_BOLD)
-            for m in comment_re.finditer(self.buffer[i]):
+                indent_level = (indentation / settings.args['tab_width']) % len(args['bullet_symbols'])
+                draw_trimmed_text(n, pos+indentation, args['bullet_symbols'][indent_level], curses.A_BOLD)
+            for m in re.compile(args['comment_re']).finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
                 draw_trimmed_text(n, pos, text, curses.A_DIM)
 
