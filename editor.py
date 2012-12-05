@@ -273,6 +273,7 @@ class Editor:
             
         self.current_note = title
         self.cursor = (0,0)
+        self.pad_position = (0,0)
         self.altered = False
         
     def save_note(self, note_name):
