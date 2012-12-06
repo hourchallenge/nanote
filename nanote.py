@@ -117,7 +117,7 @@ def main():
                     follow_link = False
                     for pos, text in editor.links:
                         if pos <= cx < pos+len(text):
-                            follow_link = text[1:-1]
+                            follow_link = text[2:-2]
                             current_note = follow_link
                             editor.load_note(current_note)
                     if not follow_link:
