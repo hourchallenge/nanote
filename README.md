@@ -4,7 +4,7 @@ nanote is written in pure Python and relies only on the Python standard library.
 
 Usage: nanote [note name]
 
-Nanote supports linking to notes by surrounding the note name in [square_brackets]. It also supports limited markdown formatting, including:
+Nanote supports linking to notes by surrounding the note name in [[double_square_brackets]]. It also supports limited markdown formatting, including:
 
     *bold text*, 
 
