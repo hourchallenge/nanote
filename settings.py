@@ -29,7 +29,7 @@ defaults = [
             ('path', os.path.join(home_dir, 'notes')),
             ('default_note', ''),
             ('tab_width', '4'),
-            ('link_re', '\[[a-zA-Z0-9\_\-\.\:\/]+\]'),
+            ('link_re', '\[{2}[a-zA-Z0-9\_\-\.\:\/]+\]{2}'),
             ('bold_re', '\*[^ ^\[^\]^*^_][^\[^\]^*^_]*?\*'),
             ('underline_re', '\_[^ ^\[^\]^*^_][^\[^\]^*^_]*?\_'),
             ('bullet_re', '^ *\* .*'),

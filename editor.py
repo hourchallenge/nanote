@@ -28,7 +28,7 @@ class Editor:
         
         if not start_note and debug:
             self.buffer = ['This is a test note.', '', 
-                           'You can link to other notes like this: [school:homework].', 
+                           'You can link to other notes like this: [[school:homework]].', 
                            'Put the cursor over a link and press ENTER to follow it.',
                            'Surround text in asterisks to *bold it*; underscores _underline text_.',
                            '',
@@ -42,6 +42,7 @@ class Editor:
         self.screen = curses.initscr()
         curses.noecho()
         curses.cbreak()
+        curses.meta(1)
         self.screen.keypad(1)
 
     def end_app(self):
@@ -256,7 +257,7 @@ class Editor:
                 note_path = settings.find_note(note_name)
                 if os.path.isdir(note_path):
                     title = '<%s>' % title
-                    self.buffer = ['[%s:%s]' % (note_name, file_name) for file_name in sorted(os.listdir(note_path))]
+                    self.buffer = ['[[%s:%s]]' % (note_name, file_name) for file_name in sorted(os.listdir(note_path))]
                 else:
                     with open(note_path) as note_file:
                         self.buffer = [r.rstrip('\n') for r in note_file.readlines()]    
