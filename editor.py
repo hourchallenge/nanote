@@ -123,10 +123,6 @@ class Editor:
             except: pass
             
         for n, i in enumerate(onscreen_range):
-            for m in re.compile(args['link_re']).finditer(self.buffer[i]):
-                pos = m.start(); text = m.group()
-                draw_trimmed_text(n, pos, text, curses.A_REVERSE)
-                if i == cy: self.links.append((pos, text))
             for m in re.compile(args['bold_re']).finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
                 draw_trimmed_text(n, pos+1, text[1:-1], curses.A_BOLD)
@@ -142,6 +138,10 @@ class Editor:
             for m in re.compile(args['comment_re']).finditer(self.buffer[i]):
                 pos = m.start(); text = m.group()
                 draw_trimmed_text(n, pos, text, curses.A_DIM)
+            for m in re.compile(args['link_re']).finditer(self.buffer[i]):
+                pos = m.start(); text = m.group()
+                draw_trimmed_text(n, pos, text, curses.A_REVERSE)
+                if i == cy: self.links.append((pos, text))
 
         self.buffer_pad.noutrefresh()
 
